@@ -3,8 +3,31 @@
 
 ;;;;; VARIABLES
 
-ROM_PC	= $80
-STACK	= $82
+var0		= $0
+var1		= $1
+var2		= $2
+var3		= $3
+
+ATRPC		= $10
+NESPC		= $12
+TableIdx	= $14
+
+; Translator
+TCachePtr	= $20
+TROMPtr		= $22
+BlockSize	= $24
+OpCode		= $25
+InstSize	= $26
+AddrMode	= $27
+
+Mode		= $30 ; running, translating, interrupt
+
+; jumps table, segmented into 4 parts for low/high bytes
+Jumps	= $300
+JATRLO	= $300
+JATRHI	= $340
+JNESLO	= $380
+JNESHI	= $3C0
 
 
 INS_JMP	= $4c
@@ -21,7 +44,7 @@ INS_JMP	= $4c
 ;;;;; START OF CODE
 Start:
 	NES_INIT
-
+	jsr ClearRAM
 	lda #$3f	; $3F -> A register
         sta PPU_ADDR	; write high byte first
 	lda #$00	; $00 -> A register
@@ -32,52 +55,92 @@ Start:
         lda #MASK_BG	; A = $08
         sta PPU_MASK	; enable rendering
         lda #CTRL_NMI	; A = $80
-        sta PPU_CTRL	; enable NMI
-
-	lda $effc
-        sta ROM_PC
-        lda $effd
-        sta ROM_PC+1
+        sta PPU_CTRL	; enable NMI      
+	lda #$00
+        sta ATRPC
+        lda #$f0
+        sta ATRPC+1
         
-        ldy #0
-.loop
-        lda (ROM_PC),y
-        sta $300,y
-        iny
-        cpy #21
-        bcc .loop
+        lda #0
+        sta TCachePtr
+        lda #$4
+        sta TCachePtr+1
 
-	lda #INS_JMP
-        sta $300,y
-        iny
-        
-        lda #<Back
-        sta $300,y
-        iny
-        
-        lda #>Back
-        sta $300,y
+	lda #$f0
+        sta TROMPtr+1
 
-	jsr Moz
 
 .endless
-	jmp .endless
+
+	ldx #$ff
+FindJump:
+	inx
+        lda JATRHI,x
+        bne .ntrans
+        inc Mode
+        bne .trans
+.ntrans 
+        
+	lda JATRLO,x
+        cmp ATRPC
+        bne FindJump
+        lda JATRHI,x
+        cmp ATRPC+1
+        bne FindJump
+        ; we found the jump addr!
+        lda JNESLO,x
+        sta var0
+        lda JNESHI,x
+        sta var1
+        jmp (var0)
+        
+        
+.trans
+	lda TROMPtr
+        sta JATRLO,x
+        lda TROMPtr+1
+        sta JATRHI,x
+	lda TCachePtr
+        sta JNESLO,x
+        lda TCachePtr+1
+        sta JNESHI,x
+        
+        ; block is addressed in the table. now we make the block
+TranslateInstruction:
+        ldy #0
+        lda (TROMPtr),y
+        sta OpCode
+        tax
+        lda AddrModes,x
+        sta AddrMode
+        tax
+        lda InstSizes,x
+        sta InstSize
+        iny
+        
+        lda AddrMode
+        cmp #$8
+        bne .ncond
+        lda (TROMPtr),y
+        
 
 
-Moz:
-	pla
-        sta STACK
-        pla
-        sta STACK+1
-        jmp $300
-        rts
+.ncond
+        
 
-Back:
-	lda STACK+1
-        pha
-        lda STACK
-        pha
-        rts
+.instdone
+	lda InstSize
+        clc
+        adc TROMPtr
+        sta TROMPtr
+        lda TROMPtr+1
+        adc #0
+        sta TROMPtr+1
+        
+
+        jmp .endless
+
+
 
 
 NMIHandler:
@@ -99,10 +162,58 @@ NMIHandler:
 
 ;;;;; COMMON SUBROUTINES
 
+; increments a 16 bit pointer
+IncP16: subroutine
+	sta var0
+        lda #0
+        sta var1
+	tay
+	clc
+        lda (var0),y
+        adc #1
+        sta (var0),y
+        iny
+        lda (var0),y
+        adc #0
+        sta (var0),y
+        rts
+
+; 0 absolute
+; 1 abs,x
+; 2 abs,y
+; 3 immediate
+; 4 implied
+; 5 indirect
+; 6 x, indirect
+; 7 indirect, y
+; 8 relative
+; 9 zero page
+; a zp,x
+; b zp,y
+
 	org $e000
-        incbin "rom.a26"
+AddrModes:
+	.hex 04050000000909000403040000000000
+	.hex 08070000000a0a000402000000010100
+        .hex 00050000090909000403040000000000
+        .hex 08070000000a0a000402000000010100
+        .hex 04050000000909000403040000000000
+        .hex 08070000000a0a000402000000010100
+        .hex 04050000000909000403040005000000
+        .hex 08070000000a0a000402000000010100
+        .hex 00050000090909000400030000000000
+        .hex 080700000a0a0b000402030000010000
+        .hex 03050300090909000403030000000000
+        .hex 080700000a0a0b000402030001010100
+        .hex 03050000090909000403030000000000
+        .hex 08070000000a0a000402000000010100
+        .hex 03050000090909000403030000000000
+        .hex 08070000000a0a000402000000010100
+
+InstSizes:
+	.hex 333213222222
 
 	include "nesppu.dasm"
 
-	NES_VECTORS
-
+	org $f000
+        incbin "rom.a26"
