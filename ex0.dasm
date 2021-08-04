@@ -3,24 +3,26 @@
 
 ;;;;; VARIABLES
 
-var0		= $0
-var1		= $1
-var2		= $2
-var3		= $3
+var0		= $4A
+var1		= $4B
+var2		= $4C
+var3		= $4D
 
-ATRPC		= $10
-NESPC		= $12
-TableIdx	= $14
+ATRPC		= $60
+NESPC		= $62
+TableIdx	= $64
 
 ; Translator
-TCachePtr	= $20
-TROMPtr		= $22
-BlockSize	= $24
-OpCode		= $25
-InstSize	= $26
-AddrMode	= $27
+TCachePtr	= $70
+TROMPtr		= $72
+BlockSize	= $74
+OpCode		= $75
+InstSize	= $76
+AddrMode	= $77
+AddrLo		= $78
+AddrHi		= $79
 
-Mode		= $30 ; running, translating, interrupt
+Mode		= $50 ; running, translating, interrupt
 
 ; jumps table, segmented into 4 parts for low/high bytes
 Jumps	= $300
@@ -70,7 +72,6 @@ Start:
         sta TROMPtr+1
 
 
-.endless
 
 	ldx #$ff
 FindJump:
@@ -118,14 +119,29 @@ TranslateInstruction:
         sta InstSize
         iny
         
-        lda AddrMode
-        cmp #$8
-        bne .ncond
+        ; copy the addr bytes of the instruction
+        cmp #2
+        bcc .naddr
         lda (TROMPtr),y
+        sta AddrLo
+        iny
         
+        lda InstSize
+        cmp #3
+        bne .naddr
+        lda (TROMPtr),y
+        sta AddrHi
+.naddr	
+        
+        ; translate
+        lda AddrMode
+        cmp #6
+        bcs .n1
+        ; two byte addr instructions
+        ; redirected if 280-297
+.n1	
 
-
-.ncond
+	
         
 
 .instdone
@@ -136,7 +152,9 @@ TranslateInstruction:
         lda TROMPtr+1
         adc #0
         sta TROMPtr+1
-        
+        bcc TranslateInstruction
+
+.endless
 
         jmp .endless
 
@@ -179,13 +197,13 @@ IncP16: subroutine
         rts
 
 ; 0 absolute
-; 1 abs,x
-; 2 abs,y
-; 3 immediate
-; 4 implied
-; 5 indirect
-; 6 x, indirect
-; 7 indirect, y
+; 1 absolute,x
+; 2 absolute,y
+; 3 indirect
+; 4 x, indirect
+; 5 indirect, y
+; 6 immediate
+; 7 implied
 ; 8 relative
 ; 9 zero page
 ; a zp,x
@@ -193,25 +211,25 @@ IncP16: subroutine
 
 	org $e000
 AddrModes:
-	.hex 04050000000909000403040000000000
-	.hex 08070000000a0a000402000000010100
-        .hex 00050000090909000403040000000000
-        .hex 08070000000a0a000402000000010100
-        .hex 04050000000909000403040000000000
-        .hex 08070000000a0a000402000000010100
-        .hex 04050000000909000403040005000000
-        .hex 08070000000a0a000402000000010100
-        .hex 00050000090909000400030000000000
-        .hex 080700000a0a0b000402030000010000
-        .hex 03050300090909000403030000000000
-        .hex 080700000a0a0b000402030001010100
-        .hex 03050000090909000403030000000000
-        .hex 08070000000a0a000402000000010100
-        .hex 03050000090909000403030000000000
-        .hex 08070000000a0a000402000000010100
+        .hex 07040000000909000706070000000000
+        .hex 08050000000a0a000702000000010100
+        .hex 00040000090909000706070000000000
+        .hex 08050000000a0a000702000000010100
+        .hex 07040000000909000706070000000000
+        .hex 08050000000a0a000702000000010100
+        .hex 07040000000909000706070003000000
+        .hex 08050000000a0a000702000000010100
+        .hex 00040000090909000700060000000000
+        .hex 080500000a0a03000702060000010000
+        .hex 06040600090909000706060000000000
+        .hex 080500000a0a03000702060001010100
+        .hex 06040000090909000706060000000000
+        .hex 08050000000a0a000702000000010100
+        .hex 06040000090909000706060000000000
+        .hex 08050000000a0a000702000000010100
 
 InstSizes:
-	.hex 333213222222
+	.hex 030303030303020102020202
 
 	include "nesppu.dasm"
 
