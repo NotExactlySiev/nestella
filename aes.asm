@@ -1,5 +1,6 @@
 
 	include "nesdefs.dasm"
+        include "vcs.h"
 
 ;;;;; VARIABLES
 
@@ -21,7 +22,7 @@ TableIdx	= $64
 ; Interrupt Handler
 
 IntrID		= $65
-
+BranchShift	= $66
 
 ; Translator
 
@@ -60,13 +61,14 @@ JSIZE	= $400
 JCYCLES	= $440
 
 CodeBlocks	= $480
+BranchCode	= $7FB
+
 
 INS_PHP	= $08
 INS_PHA	= $48
 INS_JMP_ABS	= $4c
 INS_STA_ZPG	= $85
 INS_LDA_IMM	= $a9
-
 
 
 INT_SYNC	= 0
@@ -115,6 +117,12 @@ Start:
         lda #$f0
         sta TROMPtr+1
         
+	ldx #$4
+CopyBranchCode
+        lda BranchTemplate,x
+        sta BranchCode,x
+        dex
+        bpl CopyBranchCode
 
 	jmp ResumeProgram
 
@@ -218,7 +226,14 @@ Cycles:
 InstSizes:
 	.byte 1, 2, 1, 3, 2, 2, 3, 3, 2
 
+BranchTemplate:
+	bcc .branch
+        sta BranchShift
+.branch rts
+
 	include "nesppu.dasm"
 
 	org $f000
         incbin "rom.a26"
+
+	incbin "tiles.chr"

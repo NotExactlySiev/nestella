@@ -1,5 +1,4 @@
-CreateBlock:
-
+CreateBlock: subroutine
 
 .loop
         ldy #0

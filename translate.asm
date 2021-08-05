@@ -53,12 +53,6 @@ TConditional: subroutine
 	lda #2
         sta NESInstSize ; these are used here as parameters for the interrupt emitter
 	lda OpCode
-        lsr
-        lsr
-        lsr
-        lsr
-        lsr
-        ora #$8
         sta NESOpCode
         lda AddrLo
 	sta NESAddrLo
