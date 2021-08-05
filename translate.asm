@@ -119,6 +119,15 @@ EmitInterrupt: subroutine
         lda #>InterruptHandler
         sta (TCachePtr),y
         
+        ; advance the cache pointer
+        tya
+        sec
+        adc TCachePtr
+        sta TCachePtr
+        lda TCachePtr+1
+        adc #0
+        sta TCachePtr+1
+        
         jmp TranslationDone
         
         
