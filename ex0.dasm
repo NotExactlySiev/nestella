@@ -19,8 +19,13 @@ NESPC		= $62
 TableIdx	= $64
 
 ; Translator
+
+BlockPC		= $6E
+
 TCachePtr	= $70
 TROMPtr		= $72
+
+BlockIndex	= $74
 
 OpCode		= $75
 AddrLo		= $76
@@ -46,9 +51,25 @@ JATRLO	= $300
 JATRHI	= $340
 JNESLO	= $380
 JNESHI	= $3C0
+JSIZE	= $400
+JCYCLES	= $440
+
+INS_PHP	= $08
+INS_PHA	= $48
+INS_JMP_ABS	= $4c
+INS_STA_ZPG	= $85
+INS_LDA_IMM	= $a9
 
 
-INS_JMP	= $4c
+
+INT_SYNC	= 0
+INT_TIME	= 2
+
+INT_RETN	= 8
+INT_IREQ	= 10
+INT_JMPA	= 12
+INT_JMPI	= 14
+INT_COND	= 16
 
 
 	seg.u ZEROPAGE
@@ -109,8 +130,7 @@ FindJump:
         lda JNESHI,x
         sta var1
         jmp (var0)
-        
-        
+              
 .trans
 	lda TROMPtr
         sta JATRLO,x
@@ -120,6 +140,7 @@ FindJump:
         sta JNESLO,x
         lda TCachePtr+1
         sta JNESHI,x
+        stx BlockIndex
         
         ; block is addressed in the table. now we make the block
 TranslateInstruction:
@@ -160,6 +181,7 @@ CopyAddr
         bit InstType
         beq .ncond
         ; conditional (or illegal) instruction
+        jmp TConditional
         
         bne .transdone
         
@@ -179,7 +201,8 @@ CopyAddr
 .njump	lsr
 	bit InstType
         beq .nimm
-        
+        lda AddrLo
+        sta NESAddrLo
         
         bne .transdone
 .nimm
@@ -189,12 +212,11 @@ CopyAddr
 
 .transdone
         
-AppendInstruction        
         ldy #0
         sty AddrHi
 	ldx NESInstSize
         dex
-        
+AppendInstruction              
         lda NESOpCode,x
         sta (TCachePtr),x
         dex
@@ -219,9 +241,24 @@ AppendInstruction
         
         bcc TranslateInstruction
 
-.endless
+TranslationDone
+	ldx BlockIndex
+        lda BlockSize
+        sta JSIZE,x
+	lda BlockCycles
+        sta JCYCLES,x
 
-        jmp .endless
+	; and then execute it
+	lda JNESLO,x
+        sta var0
+        lda JNESHI,x
+        sta var1
+        jmp (var0)
+
+
+
+InterruptHandler:
+	sta var2
 
 
 
