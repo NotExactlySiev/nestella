@@ -17,7 +17,9 @@ MirrorAddr: subroutine
 .inzp
 	lda #0
         sta NESAddrHi
-        beq .mirrordone
+        lda AddrLo
+        sta NESAddrLo
+        bvc .mirrordone
 .nram
 	; IO
         lda #1
@@ -60,9 +62,14 @@ TConditional: subroutine
 EmitInterrupt: subroutine
 	ldy #0
         
+        lda #INS_NOP
+        sta (TCachePtr),y
+        iny
+        
         lda #INS_PHA
         sta (TCachePtr),y
         iny
+        
         lda #INS_PHP
         sta (TCachePtr),y
         iny

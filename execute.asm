@@ -1,4 +1,4 @@
-ResumeProgram: subroutine
+SetNESPC: subroutine
 	ldx #$ff
 FindJump:
 	inx
@@ -19,7 +19,7 @@ FindJump:
         sta NESPC
         lda JNESHI,x
         sta NESPC+1
-        jmp (NESPC)
+        jmp ResumeProgram
               
 .trans
 	; if the block wasn't cached prepare for translation
@@ -39,3 +39,12 @@ FindJump:
         
         ; block is addressed in the table. now we make the block	
         jmp CreateBlock
+
+ResumeProgram: subroutine
+	lda IntS
+        pha
+        plp
+        lda IntA        
+        ldx IntX
+        ldy IntY
+        jmp (NESPC)

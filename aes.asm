@@ -24,6 +24,11 @@ TableIdx	= $64
 IntrID		= $65
 BranchShift	= $66
 
+IntA		= $67
+IntX		= $68
+IntY		= $69
+IntS		= $6A
+
 ; Translator
 
 BlockPC		= $6E
@@ -66,19 +71,10 @@ BranchCode	= $7FB
 
 INS_PHP	= $08
 INS_PHA	= $48
+INS_NOP	= $ea
 INS_JMP_ABS	= $4c
 INS_STA_ZPG	= $85
 INS_LDA_IMM	= $a9
-
-
-INT_SYNC	= 0
-INT_TIME	= 2
-
-INT_RETN	= 8
-INT_IREQ	= 10
-INT_JMPA	= 12
-INT_JMPI	= 14
-INT_COND	= 16
 
 
 	seg.u ZEROPAGE
@@ -124,7 +120,7 @@ CopyBranchCode
         dex
         bpl CopyBranchCode
 
-	jmp ResumeProgram
+	jmp SetNESPC
 
 
 
@@ -151,10 +147,8 @@ NMIHandler:
 
 
 	include "interrupt.asm"
-
 	include "blocks.asm"
 	include "translate.asm"
-
 	include "execute.asm"
 
 

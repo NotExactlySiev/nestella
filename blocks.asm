@@ -71,12 +71,12 @@ CopyAddr
         
         ldy #0
         sty AddrHi
-	ldx NESInstSize
-        dex
+	ldy NESInstSize
+        dey
 AppendInstruction              
-        lda NESOpCode,x
+        lda NESOpCode,y
         sta (TCachePtr),y
-        dex
+        dey
         bpl AppendInstruction
         
 .instdone
@@ -110,4 +110,4 @@ TranslationDone
         sta NESPC
         lda JNESHI,x
         sta NESPC+1
-        jmp (NESPC)
+        jmp ResumeProgram

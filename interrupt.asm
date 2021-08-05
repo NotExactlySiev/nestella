@@ -1,5 +1,12 @@
 InterruptHandler: subroutine
 	sta IntrID
+        pla
+        sta IntS
+        pla
+        sta IntA
+        stx IntX
+        sty IntY
+        
         
         lda ATRPC
         clc
@@ -15,11 +22,14 @@ InterruptHandler: subroutine
         
 	lda IntrID
         sta BranchCode
-        lda #0
+        lda var0
         sta BranchShift
         
-        lda var0
-        plp
+        lda IntS
+        pha
+        
+        lda #0
+        plp	; set the proccessor as it was when the interrupt happened
         jsr BranchCode
         
         lda #$ff
@@ -41,4 +51,4 @@ InterruptHandler: subroutine
 
 .intdone
 
-        jmp ResumeProgram
+        jmp SetNESPC
