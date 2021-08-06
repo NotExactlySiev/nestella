@@ -110,8 +110,28 @@ Jump
         
 
 ISync
-	inc ScanLine
-	
+	lda #2
+        bit VSYNC
+        beq .nvsync
+        lda #-37
+        sta ScanLine
+        bne .intdone
+.nvsync
+	ldy ScanLine
+        iny
+        ; we don't do anything if in vblank
+        cpy #192
+        bcs .intdone
+        ;visible scanlines 1-192
+        tya
+        and #$7
+        bne .roll
+        ; 8 rows completed. draw the playfield bytes
+        
+        
+.roll
+	; add this row to the playfield bytes
+
 
 .intdone
 

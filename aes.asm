@@ -26,7 +26,7 @@ Sprite4H	= $5E
 
 ATRPC		= $60
 NESPC		= $62
-TableIdx	= $64
+BlockIndex	= $64
 
 ; Interrupt Handler
 
@@ -38,32 +38,34 @@ IntX		= $68
 IntY		= $69
 IntS		= $6A
 
-; Translator
+; Translator Pointers
 
-BlockPC		= $6E
+TCachePtr	= $6B
+TROMPtr		= $6D
 
-TCachePtr	= $70
-TROMPtr		= $72
+; FREE
+PlayField	= $70
 
-BlockIndex	= $74
 
-OpCode		= $75
-AddrLo		= $76
-AddrHi		= $77
-InstSize	= $78
-InstType	= $79
-
-NESOpCode	= $7A
-NESAddrLo	= $7B
-NESAddrHi	= $7C
-NESInstSize	= $7D
-
-BlockSize	= $7E
-BlockCycles	= $7F
 
 ; TIA I/O registers and timers
 IORead		= $100
 IOWrite		= $108
+
+; Translator
+OpCode		= $110
+AddrLo		= $111
+AddrHi		= $112
+InstSize	= $113
+InstType	= $114
+
+NESOpCode	= $115
+NESAddrLo	= $116
+NESAddrHi	= $117
+NESInstSize	= $118
+
+BlockSize	= $119
+BlockCycles	= $11A
 
 ; jumps table, segmented into 4 parts for low/high bytes
 Jumps	= $300
