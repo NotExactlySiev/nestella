@@ -15,10 +15,7 @@ FindJump:
         cmp ATRPC+1
         bne FindJump
         ; we found the jump addr!
-        lda JNESLO,x
-        sta NESPC
-        lda JNESHI,x
-        sta NESPC+1
+        stx BlockIndex
         jmp ResumeProgram
               
 .trans
@@ -42,6 +39,10 @@ FindJump:
 
 ResumeProgram: subroutine
 	ldx BlockIndex
+        lda JNESLO,x
+        sta NESPC
+        lda JNESHI,x
+        sta NESPC+1
         lda JSIZE,x
         sta BlockSize
         lda JCYCLES

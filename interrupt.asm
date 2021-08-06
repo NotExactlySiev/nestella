@@ -10,7 +10,7 @@ InterruptHandler: subroutine
         pla
         sta var1
         
-        ldy #0
+        ldy #1
         lda (var0),y
         iny
         
@@ -62,8 +62,9 @@ IConditional
         jsr BranchCode
         
         clc
-        lda ATRPC
-        adc BranchShift
+        lda BranchShift
+        beq .intdone
+        adc ATRPC
         sta ATRPC
         lda ATRPC+1
         sbc #0

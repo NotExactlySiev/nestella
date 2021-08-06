@@ -16,6 +16,7 @@ CreateBlock: subroutine
         
 	lda InstTypes,x
         sta InstType
+        and #$f
         tax
         
         lda InstSizes,x
@@ -109,8 +110,4 @@ TranslationDone
         sta JCYCLES,x
 
 	; and then execute it
-	lda JNESLO,x
-        sta NESPC
-        lda JNESHI,x
-        sta NESPC+1
         jmp ResumeProgram

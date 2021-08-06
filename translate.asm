@@ -120,7 +120,7 @@ EmitInterrupt: subroutine
         
         ; advance the cache pointer
         tya
-        sec
+        clc
         adc TCachePtr
         sta TCachePtr
         lda TCachePtr+1
