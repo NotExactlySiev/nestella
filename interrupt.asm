@@ -23,20 +23,30 @@ InterruptHandler: subroutine
         lda ATRPC+1
         adc #0
         sta ATRPC+1
-        
+   
+
         lda IntrID
-        asl
-        and #$3e
-        jmp (IJumpTable)
+        sec
+        rol
+        and #$1f
+        tax
+
+        lda IJumpTable,x
+        pha
+        dex
+        lda IJumpTable,x
+        pha
+        rts
+        
 IJumpTable
-	.word IConditional ; 0000
-        .word IJumpIRQ
-        .word IJumpRTI
-        .word IJumpRTS
-        .word IJumpJSR
-        .word IJumpAbs
-        .word IJumpInd; 1100
-        .word ; 1110
+	.word IConditional-1 ; 0000
+        .word IJumpIRQ-1
+        .word IJumpRTI-1
+        .word IJumpRTS-1
+        .word IJumpJSR-1
+        .word IJumpAbs-1
+        .word IJumpInd-1 ; 1100
+        .word ISync-1 ; 1110
 
 IConditional
 	lda IntrID
@@ -94,7 +104,13 @@ IJumpAbs
         
 Jump        
         sta ATRPC
-        stx ATRPC+1   
+        stx ATRPC+1
+	bne .intdone
+        
+
+ISync
+	inc ScanLine
+	
 
 .intdone
 

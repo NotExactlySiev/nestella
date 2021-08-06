@@ -15,6 +15,15 @@ Mode		= $50 ; running, translating, interrupt
 
 ; 54 - 57 atari registers
 
+ScanLine	= $58 ; which scanline we're currently on
+LineCycles	= $59 ; how many cycles since the scanline started
+
+Sprite0H	= $5A
+Sprite1H	= $5B
+Sprite2H	= $5C
+Sprite3H	= $5D
+Sprite4H	= $5E
+
 ATRPC		= $60
 NESPC		= $62
 TableIdx	= $64

@@ -44,6 +44,23 @@ MirrorAddr: subroutine
 TMemoryAccess: subroutine
 	jsr MirrorAddr
         ; check if causes interrupt
+	lda #1
+        bit InstType
+        beq .nint
+        tax
+        
+        lda AddrHi
+        bne .nint
+        inx
+        cpx AddrLo
+        bne .nint
+        ; it's a sync
+        dex
+        stx NESInstSize
+        lda #7
+        sta NESOpCode
+	jmp EmitInterrupt
+.nint
 
         rts
 
@@ -90,23 +107,16 @@ EmitInterrupt: subroutine
         
         lda #>InterruptHandler
         sta (TCachePtr),y
-        
-        
-        lda NESOpCode
-        sta (TCachePtr),y
         iny
         
         ldx #0
 .writepars
-
-	lda NESAddrLo,x
+        lda NESOpCode,x
         sta (TCachePtr),y
         iny
-        
-        inx
+	inx
         cpx NESInstSize
-        bcc .writepars      
-.parsdone
+        bcc .writepars
         
         ; advance the cache pointer
         tya
