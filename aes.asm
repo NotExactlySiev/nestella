@@ -76,6 +76,7 @@ INS_JMP_ABS	= $4c
 INS_STA_ZPG	= $85
 INS_LDA_IMM	= $a9
 
+ROM_RESET	= $f000
 
 	seg.u ZEROPAGE
 	org $0

@@ -51,9 +51,22 @@ TMemoryAccess: subroutine
         ; in high byte of instruction type and send that to the IH
 TJump: subroutine
 	lda #1
-        sta NESInstSize
         bit InstType
-        beq .
+        beq .implied
+        lda AddrLo
+        sta NESAddrLo
+        lda AddrHi
+        sta NESAddrHi
+        lda #3
+.implied
+        sta NESInstSize
+
+	lda InstType
+        lsr
+        lsr
+        lsr
+        lsr
+        sta NESOpCode
 	jmp EmitInterrupt
 
 TConditional: subroutine

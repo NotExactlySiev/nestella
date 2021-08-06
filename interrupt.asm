@@ -16,16 +16,17 @@ InterruptHandler: subroutine
         sta ATRPC+1
         
         lda IntrID
-        and #$1f
+        asl
+        and #$3e
         jmp (IJumpTable)
 IJumpTable
 	.word IConditional ; 0000
-        .word ; 0010
-        .word ; 0100
-        .word ; 0110
-        .word ; 1000
-        .word ; 1010
-        .word IJump; 1100
+        .word IJumpIRQ
+        .word IJumpRTI
+        .word IJumpRTS
+        .word IJumpJSR
+        .word IJumpAbs
+        .word IJumpInd; 1100
         .word ; 1110
 
 IConditional
@@ -57,13 +58,38 @@ IConditional
         sta ATRPC+1
         bne .intdone
 
-IJump
-	lda IntrID
-        lsr
-        lsr
-        lsr
+IJumpRTI
+IJumpRTS
+
+IJumpInd
+	ldy #0
+	lda (var0),y
+        sta AddrLo
+        iny
+        lda (var0),y
+        sta AddrHi
+        jsr MirrorAddr
+        lda NESAddrLo
+        ldx NESAddrHi
+        bne Jump
+
+IJumpIRQ
+	lda #<ROM_RESET
+        ldx #>ROM_RESET
+        bne Jump
+
+IJumpJSR
+	lda ATRPC+1
+        pha
+        lda ATRPC
+        pha
+IJumpAbs
+	lda var0
+        ldx var1
         
-        
+Jump        
+        sta ATRPC
+        stx ATRPC+1   
 
 .intdone
 
