@@ -47,8 +47,13 @@ TMemoryAccess: subroutine
 
         rts
 
+	; all six jumps have unique interrupts, so we encode them
+        ; in high byte of instruction type and send that to the IH
 TJump: subroutine
-	
+	lda #1
+        sta NESInstSize
+        bit InstType
+        beq .
 	jmp EmitInterrupt
 
 TConditional: subroutine
@@ -61,11 +66,7 @@ TConditional: subroutine
 
 EmitInterrupt: subroutine
 	ldy #0
-        
-        lda #INS_NOP
-        sta (TCachePtr),y
-        iny
-        
+                
         lda #INS_PHA
         sta (TCachePtr),y
         iny
@@ -93,6 +94,9 @@ EmitInterrupt: subroutine
         iny
         
         lda #var0
+        stx var0
+        clc
+        adc var0
         sta (TCachePtr),y
         iny
         

@@ -41,6 +41,12 @@ FindJump:
         jmp CreateBlock
 
 ResumeProgram: subroutine
+	ldx BlockIndex
+        lda JSIZE,x
+        sta BlockSize
+        lda JCYCLES
+        sta BlockCycles
+        
 	lda IntS
         pha
         plp

@@ -1,5 +1,7 @@
 CreateBlock: subroutine
-
+	lda #0
+        sta BlockSize
+        sta BlockCycles
 .loop
         ldy #0
         lda (TROMPtr),y
@@ -22,7 +24,7 @@ CreateBlock: subroutine
         tay
         clc
         adc BlockSize
-        sta BlockSize   
+        sta BlockSize
 
 	; copy the addr bytes of the instruction
 CopyAddr
@@ -51,7 +53,7 @@ CopyAddr
 .nmem	lsr
 	bit InstType
         beq .njump
-        
+        jmp TJump
         
         bne .transdone
         
@@ -88,7 +90,8 @@ AppendInstruction
         adc #0
         sta TROMPtr+1
         
-        lda NESInstSize
+        ldx NESInstSize
+        txa
         clc
         adc TCachePtr
         sta TCachePtr
@@ -96,7 +99,7 @@ AppendInstruction
         adc #0
         sta TCachePtr+1
         
-        bcc .loop
+        jmp .loop
 
 TranslationDone
 	ldx BlockIndex
