@@ -70,6 +70,7 @@ BranchCode	= $7FB
 
 
 INS_PHP	= $08
+INS_JSR	= $20
 INS_PHA	= $48
 INS_NOP	= $ea
 INS_JMP_ABS	= $4c

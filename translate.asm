@@ -78,55 +78,9 @@ TConditional: subroutine
 	sta NESAddrLo
 
 EmitInterrupt: subroutine
-	ldy #0
-                
-        lda #INS_PHA
-        sta (TCachePtr),y
-        iny
+	ldy #0        
         
-        lda #INS_PHP
-        sta (TCachePtr),y
-        iny
-        
-        dec NESInstSize
-        bmi .parsdone
-        
-        ldx #0
-.writepars
-
-        lda #INS_LDA_IMM
-        sta (TCachePtr),y
-        iny
-        
-	lda NESAddrLo,x
-        sta (TCachePtr),y
-        iny
-        
-        lda #INS_STA_ZPG
-        sta (TCachePtr),y
-        iny
-        
-        lda #var0
-        stx var0
-        clc
-        adc var0
-        sta (TCachePtr),y
-        iny
-        
-        inx
-        cpx NESInstSize
-        bcc .writepars      
-.parsdone
-
-	lda #INS_LDA_IMM
-        sta (TCachePtr),y
-        iny
-        
-        lda NESOpCode
-        sta (TCachePtr),y
-        iny
-        
-        lda #INS_JMP_ABS
+        lda #INS_JSR
         sta (TCachePtr),y
         iny
         
@@ -136,6 +90,23 @@ EmitInterrupt: subroutine
         
         lda #>InterruptHandler
         sta (TCachePtr),y
+        
+        
+        lda NESOpCode
+        sta (TCachePtr),y
+        iny
+        
+        ldx #0
+.writepars
+
+	lda NESAddrLo,x
+        sta (TCachePtr),y
+        iny
+        
+        inx
+        cpx NESInstSize
+        bcc .writepars      
+.parsdone
         
         ; advance the cache pointer
         tya

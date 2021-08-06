@@ -1,11 +1,20 @@
 InterruptHandler: subroutine
-	sta IntrID
-        pla
-        sta IntS
-        pla
+	php
         sta IntA
         stx IntX
         sty IntY
+        pla
+        sta IntS
+        pla
+        sta var0
+        pla
+        sta var1
+        
+        ldy #0
+        lda (var0),y
+        iny
+        
+        sta IntrID
           
         lda ATRPC
         clc
@@ -32,7 +41,7 @@ IJumpTable
 IConditional
 	lda IntrID
         sta BranchCode
-        lda var0
+        lda (var0),y
         sta BranchShift
         
         lda IntS
@@ -42,19 +51,12 @@ IConditional
         plp	; set the proccessor as it was when the interrupt happened
         jsr BranchCode
         
-        lda #$ff
-        bit BranchShift
-        bmi .neg
-        lda #0
-.neg
-	sta var3 ; use this as a temporary second byte for sign extension
-        
         clc
         lda ATRPC
         adc BranchShift
         sta ATRPC
         lda ATRPC+1
-        adc var3
+        sbc #0
         sta ATRPC+1
         bne .intdone
 
@@ -84,8 +86,11 @@ IJumpJSR
         lda ATRPC
         pha
 IJumpAbs
-	lda var0
-        ldx var1
+	ldy #1
+        lda (var0),y
+        tax
+        dey
+        lda (var0),y
         
 Jump        
         sta ATRPC
