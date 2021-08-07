@@ -49,6 +49,8 @@ Cycles:
 InstSizes:
 	.byte 1, 2, 1, 3, 2, 2, 3, 3, 2
 
+
+
 BranchTemplate:
 	bcc .branch
         sta BranchShift

@@ -1,43 +1,59 @@
 MirrorAddr: subroutine
-	lda AddrHi
+	ldy AddrHi
+        ldx AddrLo
+        
+	tya
         and #$10
         beq .ncart
-	lda AddrHi
+        ; xxx1 xxxx xxxx xxxx -> 1111 xxxx xxxx xxxx Done
+	tya
         ora #$f0
         sta NESAddrHi
         bne .mirrordone
 .ncart
-	bit AddrLo
+	; xxx0 xxxx xxxx xxxx -> 0000 xxxx xxxx xxxx
+	tya
+        and #$f
+        tay
+	txa
         bmi .ntia
-        bpl .inzp
-.ntia
-	lda AddrHi
-        and #$02
-        bne .nram
-.inzp
-	lda #0
-        sta NESAddrHi
-        lda AddrLo
-        sta NESAddrLo
-        bvc .mirrordone
-.nram
-	; IO
-        lda #1
-        sta NESAddrHi
-        lda AddrLo
-        and #$7
-        sta NESAddrLo
+        ; 0000 xxxx 0xxx xxxx -> 0000 0000 0xxx xxxx
+        ldy #0
+        ror InstType
+        bcc .ntiawrite
+        ; -> 0000 0000 00xx xxxx Done
+        txa
+        and #$3f
         tax
+        bpl .mirrordone
+.ntiawrite
+	; 0000 0000 0000 xxxx -> 0000 0000 0011 xxxx Done
+	txa
+        and #$f
+        ora #$30
+        tax
+        bpl .mirrordone
+.ntia
+	tya
+        and #$02
+        tay
+        ; 0000 00x0 1xxx xxxx
+        beq .mirrordone
+        ; 0000 0010 1xxx xxxx -> 0000 0001 mxxx
+	; IO
+        ldy #1
+        txa
+        and #$7
 	
         ; and add 8 if is a write instruction
-        lda #1
-        bit InstType
-        beq .nwrite
-	txa
+        ror InstType
+        bcc .nwrite
         ora #$8
-        sta NESAddrLo
 .nwrite
 .mirrordone
+	stx NESAddrLo
+        sty NESAddrHi
+
 	rts
 
 
@@ -61,7 +77,6 @@ TMemoryAccess: subroutine
         sta NESOpCode
 	jmp EmitInterrupt
 .nint
-
         rts
 
 	; all six jumps have unique interrupts, so we encode them
