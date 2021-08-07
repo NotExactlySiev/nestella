@@ -103,6 +103,11 @@ AppendInstruction
         jmp .loop
 
 TranslationDone
+	lda TCachePtr
+        sta CacheFree
+        lda TCachePtr+1
+        sta CacheFree+1
+
 	ldx BlockIndex
         lda BlockSize
         sta JSIZE,x

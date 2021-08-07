@@ -23,9 +23,7 @@ Sprite2H	= $5C
 Sprite3H	= $5D
 Sprite4H	= $5E
 
-ATRPC		= $60
-NESPC		= $62
-BlockIndex	= $64
+
 
 ; Interrupt Handler
 
@@ -37,7 +35,7 @@ IntX		= $68
 IntY		= $69
 IntS		= $6A
 
-; Translator Pointers
+; Temporary Pointers
 
 TCachePtr	= $6B
 TROMPtr		= $6D
@@ -65,6 +63,11 @@ NESInstSize	= $118
 
 BlockSize	= $119
 BlockCycles	= $11A
+ATRPC		= $11B
+NESPC		= $11D
+BlockIndex	= $11F
+
+CacheFree	= $121
 
 ; jumps table, segmented into 4 parts for low/high bytes
 Jumps	= $300
@@ -119,9 +122,9 @@ Start:
         sta ATRPC+1
         
         lda #<CodeBlocks
-        sta TCachePtr
+        sta CacheFree
         lda #>CodeBlocks
-        sta TCachePtr+1
+        sta CacheFree+1
 
         lda #$f0
         sta TROMPtr+1

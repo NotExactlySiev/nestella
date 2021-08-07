@@ -26,9 +26,11 @@ FindJump:
         sta TROMPtr+1
         sta JATRHI,x
 	
-        lda TCachePtr
+        lda CacheFree
+        sta TCachePtr
         sta JNESLO,x
-        lda TCachePtr+1
+        lda CacheFree+1
+        sta TCachePtr+1
         sta JNESHI,x
         stx BlockIndex
         
