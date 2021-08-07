@@ -63,11 +63,17 @@ IConditional
         
         clc
         lda BranchShift
+        tax
         beq .intdone
         adc ATRPC
         sta ATRPC
-        lda ATRPC+1
-        sbc #0
+        ldy #0
+        txa
+        bpl .pos
+        ldy #$ff
+.pos
+	tya
+        adc ATRPC+1
         sta ATRPC+1
         bne .intdone
 
