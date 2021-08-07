@@ -3,9 +3,7 @@ SetNESPC: subroutine
 FindJump:
 	inx
         lda JATRHI,x
-        bne .ntrans
-        inc Mode
-        bne .trans
+        beq .trans
 .ntrans 
         
 	lda JATRLO,x

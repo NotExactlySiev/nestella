@@ -72,7 +72,16 @@ IConditional
         bne .intdone
 
 IJumpRTI
+	pla
+        sta IntS
 IJumpRTS
+        pla
+        tay
+        pla
+	tax
+        tya
+
+        bvc Jump
 
 IJumpInd
 	ldy #0
@@ -87,17 +96,19 @@ IJumpInd
         bne Jump
 
 IJumpIRQ
-	lda #<ROM_RESET
-        ldx #>ROM_RESET
+	lda #<ROM_IRQ
+        ldx #>ROM_IRQ
         bne Jump
 
 IJumpJSR
+	; push the return address into the stack and then absolute jump
 	lda ATRPC+1
         pha
         lda ATRPC
         pha
+
 IJumpAbs
-	ldy #1
+	ldy #3
         lda (var0),y
         tax
         dey

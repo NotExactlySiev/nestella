@@ -11,7 +11,6 @@ var1		= $4B
 var2		= $4C
 var3		= $4D
 
-Mode		= $50 ; running, translating, interrupt
 
 ; 54 - 57 atari registers
 
@@ -89,6 +88,7 @@ INS_STA_ZPG	= $85
 INS_LDA_IMM	= $a9
 
 ROM_RESET	= $f000
+ROM_IRQ		= $f10f
 
 	seg.u ZEROPAGE
 	org $0
@@ -186,6 +186,7 @@ NMIHandler:
 	include "nesppu.dasm"
 
 	org $f000
+	incbin "rom.a26"
         incbin "rom.a26"
 
 	incbin "tiles.chr"
