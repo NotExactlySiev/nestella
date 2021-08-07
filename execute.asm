@@ -1,7 +1,8 @@
 SetNESPC: subroutine
-	ldx #$ff
+	ldx #$40
 FindJump:
-	inx
+	dex
+        bmi FreeCache
         lda JATRHI,x
         beq .trans
 .ntrans 
@@ -15,7 +16,10 @@ FindJump:
         ; we found the jump addr!
         stx BlockIndex
         jmp ResumeProgram
-              
+
+FreeCache
+	ldx CacheOldest
+        dec CacheOldest
 .trans
 	; if the block wasn't cached prepare for translation
 	lda ATRPC

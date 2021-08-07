@@ -2,6 +2,7 @@ CreateBlock: subroutine
 	lda #0
         sta BlockSize
         sta BlockCycles
+        sta RollOver
 .loop
         ldy #0
         lda (TROMPtr),y
@@ -99,10 +100,68 @@ AppendInstruction
         lda TCachePtr+1
         adc #0
         sta TCachePtr+1
+        ; if we're at the end of the cache memory, we have to roll over and overwrite old cache
+        cmp #$7
+        bne .nrollover
+        lda TCachePtr
+        cmp #$F8
+        bcc .nrollover
         
+        ldy #0
+        lda #INS_JMP_ABS
+        sta (TCachePtr),y
+        iny
+        sty RollOver
+        
+        lda #<CodeBlocks
+        tax
+        sta (TCachePtr),y
+        iny
+        
+        lda #>CodeBlocks
+        sta (TCachePtr),y
+        sta TCachePtr+1
+        stx TCachePtr
+	
+        
+.nrollover
         jmp .loop
 
 TranslationDone
+
+RemoveOverwrittenEntries
+	; compare every cache entry and remove them if they are overwritten
+        ; var0 and var1 hold the pointer to the end of current block
+        ldx BlockIndex
+        lda JSIZE,x
+        clc
+        adc JNESLO,x
+        sta var0
+        lda JNESHI,x
+        adc #0
+        sta var1
+        
+        ldy #$40
+.nextentry
+        dey
+        lda JNESHI,y
+        cmp JNESHI,x
+        bcc .nextentry
+        bne .isbigger
+        lda JNESLO,y
+        cmp JNESLO,x
+        bcc .nextentry
+.isbigger
+	
+        lda JNESHI,y
+        cmp var1
+        bcc .nextentry
+        bne .isinrange
+	lda JNESLO,y
+.isinrange
+
+        
+UpdateTable
 	lda TCachePtr
         sta CacheFree
         lda TCachePtr+1

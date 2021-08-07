@@ -39,6 +39,7 @@ IntS		= $6A
 
 TCachePtr	= $6B
 TROMPtr		= $6D
+RollOver	= $6F
 
 ; FREE
 PlayField	= $70
@@ -68,6 +69,9 @@ NESPC		= $11D
 BlockIndex	= $11F
 
 CacheFree	= $121
+CacheOldest	= $123
+BranchCode	= $124
+
 
 ; jumps table, segmented into 4 parts for low/high bytes
 Jumps	= $300
@@ -79,7 +83,6 @@ JSIZE	= $400
 JCYCLES	= $440
 
 CodeBlocks	= $480
-BranchCode	= $7FB
 
 
 INS_PHP	= $08
@@ -125,6 +128,8 @@ Start:
         sta CacheFree
         lda #>CodeBlocks
         sta CacheFree+1
+	lda #$3f
+        sta CacheOldest
 
         lda #$f0
         sta TROMPtr+1

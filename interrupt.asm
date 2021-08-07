@@ -127,29 +127,50 @@ Jump
         
 
 ISync
+	jsr LineSync
+
+.intdone
+
+        jmp SetNESPC
+        
+        
+LineSync: subroutine
 	lda #2
         bit VSYNC
         beq .nvsync
         lda #-37
         sta ScanLine
-        bne .intdone
+        bne .syncdone
 .nvsync
 	ldy ScanLine
         iny
+        sty ScanLine
         ; we don't do anything if in vblank
         cpy #192
-        bcs .intdone
+        bcs .syncdone
         ;visible scanlines 1-192
+
+	ldy #2
+        jmp .readpf
+
+        ldy #0       
+.readpf        
+        lda PlayField,y
+        rol PF0
+        rol
+        rol PF0
+        rol
+        sta PlayField,y
+        iny
+        cpy #$4
+        bcc .readpf
+        
+        
         tya
         and #$7
-        bne .roll
-        ; 8 rows completed. draw the playfield bytes
-        
-        
-.roll
-	; add this row to the playfield bytes
+        bne .nupdate
+        ; 8 rows completed. draw the playfield bytes  
+.nupdate
 
-
-.intdone
-
-        jmp SetNESPC
+.syncdone
+	rts
