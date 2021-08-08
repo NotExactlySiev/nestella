@@ -133,34 +133,65 @@ RemoveOverwrittenEntries
 	; compare every cache entry and remove them if they are overwritten
         ; var0 and var1 hold the pointer to the end of current block
         ldx BlockIndex
-        lda JSIZE,x
-        clc
-        adc JNESLO,x
-        sta var0
-        lda JNESHI,x
-        adc #0
-        sta var1
         
-        ldy #$40
-.nextentry
-        dey
-        lda JNESHI,y
-        cmp JNESHI,x
-        bcc .nextentry
-        bne .isbigger
-        lda JNESLO,y
-        cmp JNESLO,x
-        bcc .nextentry
-.isbigger
-	
-        lda JNESHI,y
-        cmp var1
-        bcc .nextentry
-        bne .isinrange
-	lda JNESLO,y
-.isinrange
+	; we need two different algorithms for rolled over and non rolled over blocks
+        ldy BlockIndex
+        lda RollOver
+	beq .method2
+.method1
+        	dey
+                bpl .nend
+		ldy #$3F
+.nend		; is the start of the block before the end of the current block OR after the start?
+		lda JNESHI,y
+        	cmp JNESHI,x
+                bcc .check2
+                bne .isin
+		lda JNESLO,y
+                cmp JNESLO,x
+                bcs .isin
+.check2
+        	lda JNESHI,y
+                cmp TCachePtr+1
+                bcc .isin
+                bne .cachedone
+                lda JNESLO,y
+                cmp TCachePtr
+                bcc .isin
+                bcs .cachedone
+                
+.method2
+		dey
+                bpl .nend2
+		ldy #$3F
+.nend2		; is the start of the block before the end of the current block AND after the start?
+		lda JNESHI,y
+                cmp JNESHI,x
+                bcc .cachedone
+                bne .check4
+                lda JNESLO,y
+                cmp JNESLO,x
+                bcc .method2
+                beq .cachedone ; we shouldn't be here
+.check4
+		lda JNESHI,y
+		cmp TCachePtr+1
+                bcc .isin
+                bne .method2
+                lda JNESLO,y
+                cmp TCachePtr
+                bcs .cachedone
+.isin
+	lda #0
+        sta JATRHI,y
+        bit RollOver
+        bne .back2
+        beq .method1
+.back2
+	bne .method2
 
-        
+.cachedone
+
 UpdateTable
 	lda TCachePtr
         sta CacheFree

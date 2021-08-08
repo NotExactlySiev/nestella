@@ -124,6 +124,13 @@ Start:
         lda #$f0
         sta ATRPC+1
         
+        ldx #$3f
+.loop
+        lda #$ff
+        sta JNESHI,x
+        dex
+        bpl .loop
+        
         lda #<CodeBlocks
         sta CacheFree
         lda #>CodeBlocks
@@ -148,7 +155,6 @@ CopyBranchCode
 
 	org $d000
 NMIHandler:
-	php
         pha
         tya
         pha
@@ -174,7 +180,6 @@ NMIHandler:
         pla
         tay
         pla
-        plp
         rti
 
 
