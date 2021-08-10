@@ -5,129 +5,26 @@ InterruptHandler: subroutine
         sty IntY
         pla
         sta IntS
-        pla
-        sta var0
-        pla
-        sta var1
+
         
-        ldy #1
-        lda (var0),y
-        iny
+	ldy BlockIndex
+
         
+        lda JINTLO,y
+        sta ATRPC
+        lda JINTHI,y
+        sta ATRPC+1
+        
+
+        lda JNESHI,y
+        lsr
+        lsr
+        lsr
         sta IntrID
-          
-        lda ATRPC
-        clc
-        adc BlockSize
-        sta ATRPC
-        lda ATRPC+1
-        adc #0
-        sta ATRPC+1
-   
-
-        lda IntrID
-        sec
-        rol
-        and #$1f
-        tax
-
-        lda IJumpTable,x
-        pha
-        dex
-        lda IJumpTable,x
-        pha
-        rts
         
-IJumpTable
-	.word IConditional-1 ; 0000
-        .word IJumpIRQ-1
-        .word IJumpRTI-1
-        .word IJumpRTS-1
-        .word IJumpJSR-1
-        .word IJumpAbs-1
-        .word IJumpInd-1 ; 1100
-        .word ISync-1 ; 1110
-
-IConditional
-	lda IntrID
-        sta BranchCode
-        lda (var0),y
-        sta BranchShift
         
-        lda IntS
-        pha
-        
-        lda #0
-        plp	; set the proccessor as it was when the interrupt happened
-        jsr BranchCode
-        
-        clc
-        lda BranchShift
-        tax
-        beq .intdone
-        adc ATRPC
-        sta ATRPC
-        ldy #0
-        txa
-        bpl .pos
-        ldy #$ff
-.pos
-	tya
-        adc ATRPC+1
-        sta ATRPC+1
-        bne .intdone
-
-IJumpRTI
-	pla
-        sta IntS
-IJumpRTS
-        pla
-        tay
-        pla
-	tax
-        tya
-
-        bvc Jump
-
-IJumpInd
-	ldy #0
-	lda (var0),y
-        sta AddrLo
-        iny
-        lda (var0),y
-        sta AddrHi
-        jsr MirrorAddr
-        lda NESAddrLo
-        ldx NESAddrHi
-        bne Jump
-
-IJumpIRQ
-	lda #<ROM_IRQ
-        ldx #>ROM_IRQ
-        bne Jump
-
-IJumpJSR
-	; push the return address into the stack and then absolute jump
-	lda ATRPC+1
-        pha
-        lda ATRPC
-        pha
-
-IJumpAbs
-	ldy #3
-        lda (var0),y
-        tax
-        dey
-        lda (var0),y
-        
-Jump        
-        sta ATRPC
-        stx ATRPC+1
-	bne .intdone
         
 
-ISync
-	jsr LineSync
 
 .intdone
 

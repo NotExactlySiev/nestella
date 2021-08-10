@@ -28,7 +28,7 @@ Sprite4H	= $5E
 ; Interrupt Handler
 
 IntrID		= $65
-BranchShift	= $66
+BranchHead	= $66
 
 IntA		= $67
 IntX		= $68
@@ -51,44 +51,43 @@ IORead		= $100
 IOWrite		= $108
 
 ; Translator
-OpCode		= $110
-AddrLo		= $111
-AddrHi		= $112
-InstSize	= $113
-InstType	= $114
+OpCode		= $3C1
+AddrLo		= $3C2
+AddrHi		= $3C3
+InstSize	= $3C5
+InstType	= $3C6
 
-NESOpCode	= $115
-NESAddrLo	= $116
-NESAddrHi	= $117
-NESInstSize	= $118
+NESInstSize	= $3C7
+NESOpCode	= $3C9
+NESAddrLo	= $3CA
+NESAddrHi	= $3CB
 
-BlockSize	= $119
-BlockCycles	= $11A
-ATRPC		= $11B
-NESPC		= $11D
-BlockIndex	= $11F
+;;;---
+BlockCycles	= $3CE
+ATRPC		= $3D1
+NESPC		= $3D5
+BlockIndex	= $3D7
 
-CacheFree	= $121
-CacheOldest	= $123
-BranchCode	= $124
-
+CacheFree	= $3D9
+CacheOldest	= $3DB
 
 ; jumps table, segmented into 4 parts for low/high bytes
-Jumps	= $300
 JATRLO	= $300
 JATRHI	= $340
 JNESLO	= $380
 JNESHI	= $3C0
 JSIZE	= $400
 JCYCLES	= $440
+JINTLO	= $480
+JINTHI	= $4C0
 
-CodeBlocks	= $480
+CodeBlocks	= $500
 
 
-INS_PHP	= $08
-INS_JSR	= $20
-INS_PHA	= $48
-INS_NOP	= $ea
+INS_PHP		= $08
+INS_JSR		= $20
+INS_PHA		= $48
+INS_NOP		= $ea
 INS_JMP_ABS	= $4c
 INS_STA_ZPG	= $85
 INS_LDA_IMM	= $a9
@@ -141,13 +140,9 @@ Start:
         lda #$f0
         sta TROMPtr+1
         
-	ldx #$4
-CopyBranchCode
-        lda BranchTemplate,x
-        sta BranchCode,x
-        dex
-        bpl CopyBranchCode
-
+        lda #$e3
+        sta BranchHead
+        
 	jmp SetNESPC
 
 
@@ -197,6 +192,36 @@ NMIHandler:
 	include "data.asm"
         
 	include "nesppu.dasm"
+
+	.org $e300
+	bpl .branched
+	rts
+        .byte
+        bmi .branched
+	rts
+        .byte
+        bvc .branched
+	rts
+        .byte
+        bvs .branched
+	rts
+        .byte
+        bcc .branched
+	rts
+        .byte
+        bcs .branched
+	rts
+        .byte
+        bne .branched
+	rts
+        .byte
+        beq .branched
+	rts
+.branched
+	txa
+        rts
+
+
 
 	org $f000
 	incbin "rom.a26"

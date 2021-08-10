@@ -19,7 +19,13 @@ FindJump:
 
 FreeCache
 	ldx CacheOldest
-        dec CacheOldest
+        txa
+        dex
+        bpl .nover
+        ldx #$3F
+.nover
+	stx CacheOldest
+        tax
 .trans
 	; if the block wasn't cached prepare for translation
 	lda ATRPC
@@ -47,8 +53,6 @@ ResumeProgram: subroutine
         sta NESPC
         lda JNESHI,x
         sta NESPC+1
-        lda JSIZE,x
-        sta BlockSize
         lda JCYCLES
         sta BlockCycles
         

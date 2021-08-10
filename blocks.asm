@@ -1,6 +1,5 @@
 CreateBlock: subroutine
 	lda #0
-        sta BlockSize
         sta BlockCycles
         sta RollOver
 .loop
@@ -24,9 +23,6 @@ CreateBlock: subroutine
         sta InstSize
         sta NESInstSize
         tay
-        clc
-        adc BlockSize
-        sta BlockSize
 
 	; copy the addr bytes of the instruction
 CopyAddr
@@ -63,13 +59,13 @@ CopyAddr
 	bit InstType
         beq .nimm
         lda AddrLo
-        sta NESAddrLo
-        
+        sta NESAddrLo      
         bne .transdone
+        
 .nimm
-	; implied simple instruction. just copy with default values
-        
-        
+	; implied simple instruction. interrupt if stack operation
+        ; other wise copy with the default value
+
 
 .transdone
         
@@ -199,8 +195,6 @@ UpdateTable
         sta CacheFree+1
 
 	ldx BlockIndex
-        lda BlockSize
-        sta JSIZE,x
 	lda BlockCycles
         sta JCYCLES,x
 
