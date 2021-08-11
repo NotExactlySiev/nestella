@@ -68,12 +68,12 @@ IOWrite		= $108
 
 
 ;;;---
-ATRPC		= $3D1
-NESPC		= $3D5
-BlockIndex	= $3D7
+ATRPC		= $2D1
+NESPC		= $2D5
+BlockIndex	= $2D7
 
-CacheFree	= $3D9
-CacheOldest	= $3DB
+CacheFree	= $2D9
+CacheOldest	= $2DB
 
 ; jumps table, segmented into 4 parts for low/high bytes
 JATRLO	= $300
@@ -141,6 +141,8 @@ Start:
 	lda #$3f
         sta CacheOldest
 
+	lda #00
+        sta TROMPtr
         lda #$f0
         sta TROMPtr+1
         

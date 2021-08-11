@@ -1,21 +1,25 @@
-; 0 do nothing. implied or accumulator
-; 1 do nothing. immediate
-; 2 is a jump. implied
-; 3 is a jump. 2 byte addr
-; 4 memory read. 1 byte addr
-; 5 memory write. 1 byte addr
-; 6 memory read. 2 byte addr
-; 7 memory write. 2 byte addr
-; 8 conditional
-; 10 stack operation
-; ff illegal opcode
-; TODO come up with a better categorization you idiot
+; 0000 00xx instruction of size xx
+; 0000 01xy memory access instruction. x write op, y not zero page
+; 100c cccc interrupt. ccccc interrupt code
+; x1xx xxxx illegal opcode
 
 InstTypes:
-        .byte %10000001
-        .byte %10000000
-        .byte %10010001
-        .byte %10000100
+        .hex 81 04 ff ff ff 04 06 ff 9b 02 01 ff ff 05 07 ff
+        .hex 80 04 ff ff ff 04 06 ff 01 05 ff ff ff 05 07 ff
+        .hex 91 04 ff ff 04 04 06 ff 93 02 01 ff 05 05 07 ff
+        .hex 84 04 ff ff ff 04 06 ff 01 05 ff ff ff 05 07 ff
+        .hex 8d 04 ff ff ff 04 06 ff 8b 02 01 ff 81 05 07 ff
+        .hex 88 04 ff ff ff 04 06 ff 01 05 ff ff ff 05 07 ff
+        .hex 85 04 ff ff ff 04 06 ff 83 02 01 ff 89 05 07 ff
+        .hex 8c 04 ff ff ff 04 06 ff 01 05 ff ff ff 05 07 ff
+        .hex ff 06 ff ff 06 06 06 ff 01 ff 01 ff 07 05 07 ff
+        .hex 90 06 ff ff 06 06 06 ff 01 07 87 ff ff 07 ff ff
+        .hex 02 04 02 ff 04 04 04 ff 01 02 01 ff 05 07 05 ff
+        .hex 94 04 ff ff 04 04 04 ff 01 05 8f ff 05 05 05 ff
+        .hex 02 04 ff ff 04 04 06 ff 01 02 01 ff 05 05 07 ff
+        .hex 98 04 ff ff ff 04 06 ff 01 05 ff ff ff 05 07 ff
+        .hex 02 04 ff ff 04 04 06 ff 01 02 01 ff 05 05 07 ff
+        .hex 9c 04 ff ff ff 04 06 ff 01 05 ff ff ff 05 07 ff
 
 	; how many minimum cycles each opcode takes
 Cycles:

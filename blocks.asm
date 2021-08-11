@@ -32,8 +32,8 @@ CreateBlock: subroutine
 	lda InstType
         sta NESInstSize
 
-InstructionDone
 
+InstructionDone
         ldy #0
         sty AddrHi
 	ldy NESInstSize
@@ -44,7 +44,7 @@ AppendInstruction
         dey
         bpl AppendInstruction
         
-.instdone
+        ; advance the pointers
 	lda InstSize
         clc
         adc TROMPtr
@@ -61,11 +61,12 @@ AppendInstruction
         lda TCachePtr+1
         adc #0
         sta TCachePtr+1
+        
         ; if we're at the end of the cache memory, we have to roll over and overwrite old cache
         cmp #$7
         bne .nrollover
         lda TCachePtr
-        cmp #$F8
+        cmp #$f8
         bcc .nrollover
         
         ldy #0
@@ -82,9 +83,7 @@ AppendInstruction
         lda #>CodeBlocks
         sta (TCachePtr),y
         sta TCachePtr+1
-        stx TCachePtr
-	
-        
+        stx TCachePtr        
 .nrollover
         jmp .loop
 
