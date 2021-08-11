@@ -6,64 +6,68 @@
 
 ; 40 - 45 atari registers
 
-var0		= $4A
-var1		= $4B
-var2		= $4C
-var3		= $4D
+var0		= $46
+var1		= $47
+var2		= $48
+var3		= $49
 
+; Translator
 
+NESInstSize	= $4A
+NESOpCode	= $4B
+NESAddrLo	= $4C
+NESAddrHi	= $4D
+
+OpCode		= $4E
+AddrLo		= $4F
+AddrHi		= $50
+InstSize	= $51
+
+InstType	= $52
 ; 54 - 57 atari registers
+BlockCycles	= $58
+BlockNESPCHi	= $59
 
-ScanLine	= $58 ; which scanline we're currently on
-LineCycles	= $59 ; how many cycles since the scanline started
+; Rendering
 
-Sprite0H	= $5A
-Sprite1H	= $5B
-Sprite2H	= $5C
-Sprite3H	= $5D
-Sprite4H	= $5E
+ScanLine	= $5A ; which scanline we're currently on
+LineCycles	= $5B ; how many cycles since the scanline started
+
+Sprite0H	= $5C
+Sprite1H	= $5D
+Sprite2H	= $5E
+Sprite3H	= $5F
+Sprite4H	= $60
 
 
 
 ; Interrupt Handler
 
-IntrID		= $65
-BranchHead	= $66
+IntrID		= $61
+BranchHead	= $62
 
-IntA		= $67
-IntX		= $68
-IntY		= $69
-IntS		= $6A
+IntA		= $63
+IntX		= $64
+IntY		= $65
+IntS		= $66
 
 ; Temporary Pointers
 
-TCachePtr	= $6B
-TROMPtr		= $6D
-RollOver	= $6F
+TCachePtr	= $67
+TROMPtr		= $69
+RollOver	= $6B
 
-; FREE
-PlayField	= $70
-
+PlayField	= $6C
+; - 7D Plafield Blocks
 
 
 ; TIA I/O registers and timers
 IORead		= $100
 IOWrite		= $108
 
-; Translator
-OpCode		= $3C1
-AddrLo		= $3C2
-AddrHi		= $3C3
-InstSize	= $3C5
-InstType	= $3C6
 
-NESInstSize	= $3C7
-NESOpCode	= $3C9
-NESAddrLo	= $3CA
-NESAddrHi	= $3CB
 
 ;;;---
-BlockCycles	= $3CE
 ATRPC		= $3D1
 NESPC		= $3D5
 BlockIndex	= $3D7

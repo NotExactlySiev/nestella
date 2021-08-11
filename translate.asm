@@ -58,33 +58,53 @@ MirrorAddr: subroutine
 
 
 TMemoryAccess: subroutine
+	lda InstType
+        and #$1
+        ora #$2
+        sta InstSize
+	tay
+        
+        dey
+.copyaddr        
+        lda (TROMPtr),y
+        sta OpCode,y
+	dey
+        bne .copyaddr
+
 	jsr MirrorAddr
+        
         ; check if causes interrupt
-	lda #1
+        lda #2
         bit InstType
         beq .nint
         tax
         
-        lda AddrHi
+        lda NESAddrHi
         bne .nint
-        inx
-        cpx AddrLo
+        cpx NESAddrLo
         bne .nint
         ; it's a sync
-        dex
-        stx NESInstSize
-        lda #7
-        sta NESOpCode
+        ; use NESAddrHi and Lo for the interrupt return address since we no longer need those variables
+        lda #$10
+        ora BlockNESPCHi
+        sta BlockNESPCHi
+        clc
+        lda TROMPtr
+        adc InstSize
+        sta NESAddrLo
+        lda TROMPtr+1
+        adc #0
+        sta NESAddrHi
 	jmp EmitInterrupt
 .nint
-        rts
+	lda InstSize
+        sta NESInstSize
+        jmp InstructionDone
+
 
 TStack: subroutine
-	lda #1
-        sta NESInstSize
-        lda OpCode
-        sta NESOpCode
 	jmp EmitInterrupt
+
 
 	; all six jumps have unique interrupts, so we encode them
         ; in high byte of instruction type and send that to the IH

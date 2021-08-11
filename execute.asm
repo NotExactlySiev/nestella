@@ -41,7 +41,7 @@ FreeCache
         sta JNESLO,x
         lda CacheFree+1
         sta TCachePtr+1
-        sta JNESHI,x
+        sta BlockNESPCHi
         stx BlockIndex
         
         ; block is addressed in the table. now we make the block	
