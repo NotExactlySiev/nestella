@@ -102,39 +102,51 @@ TMemoryAccess: subroutine
         jmp InstructionDone
 
 
-TStack: subroutine
-	jmp EmitInterrupt
+TAlwaysInterrupt: subroutine
+	lda InstType
+        asl
+        asl
+        asl
+        ora BlockNESPCHi
+        sta BlockNESPCHi
+        lda InstType
+        lsr
+        bcs .ncond
+        ; Conditional interrupt
+        lda #2
+        bne .nextop
+    
+.ncond	lsr
+	bcc .nstack
+        
+        ; Stack interrupt
+        lda #1
+        bne .nextop
 
-
-	; all six jumps have unique interrupts, so we encode them
-        ; in high byte of instruction type and send that to the IH
-TJump: subroutine
-	lda #1
-        bit InstType
-        beq .implied
-        lda AddrLo
+        
+.nstack 
+	; Jump interrupt
+	lsr
+        bcs .ntable
+        
+        ldy #1
+        lda (TROMPtr),y
         sta NESAddrLo
-        lda AddrHi
+        iny
+        lda (TROMPtr),y
         sta NESAddrHi
         lda #3
-.implied
-        sta NESInstSize
-
-	lda InstType
-        lsr
-        lsr
-        lsr
-        lsr
-        sta NESOpCode
-	jmp EmitInterrupt
-
-TConditional: subroutine
-	lda #2
-        sta NESInstSize ; these are used here as parameters for the interrupt emitter
-	lda OpCode
-        sta NESOpCode
-        lda AddrLo
-	sta NESAddrLo
+        bne .nextop
+        
+.ntable
+	lda #1
+.nextop
+        clc
+        adc TROMPtr
+        sta NESAddrLo
+        lda TROMPtr+1
+        adc #0
+        sta NESAddrHi
 
 EmitInterrupt: subroutine
 	ldy #0        

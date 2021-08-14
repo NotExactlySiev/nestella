@@ -52,11 +52,12 @@ ResumeProgram: subroutine
         lda JNESLO,x
         sta NESPC
         lda JNESHI,x
+        and #$7
         sta NESPC+1
         lda JCYCLES
         sta BlockCycles
         
-	lda IntS
+	lda IntP
         pha
         plp
         lda IntA        

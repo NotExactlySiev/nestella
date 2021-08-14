@@ -21,7 +21,8 @@ CreateBlock: subroutine
 	lda #$4
         bit InstType
         bpl .nint
-        ; Instant Interrupt
+        ; Always Interrupt
+        jmp TAlwaysInterrupt
 .nint
         beq .nmem
         ; Memory Access
@@ -30,8 +31,10 @@ CreateBlock: subroutine
 .nmem
 	; No changes
 	lda InstType
+        sta InstSize
         sta NESInstSize
-
+	lda OpCode
+        sta NESOpCode
 
 InstructionDone
         ldy #0

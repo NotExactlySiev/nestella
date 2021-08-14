@@ -26,7 +26,8 @@ InstSize	= $51
 InstType	= $52
 ; 54 - 57 atari registers
 BlockCycles	= $58
-BlockNESPCHi	= $59
+BlockNESPCHi	= $59 ; this will also contain the interrupt type in it, so it's
+		      ; stored in the table after the block is fully translated
 
 ; Rendering
 
@@ -49,16 +50,17 @@ BranchHead	= $62
 IntA		= $63
 IntX		= $64
 IntY		= $65
-IntS		= $66
+IntP		= $66
+IntS		= $67
 
 ; Temporary Pointers
 
-TCachePtr	= $67
-TROMPtr		= $69
-RollOver	= $6B
+TCachePtr	= $69
+TROMPtr		= $6B
+RollOver	= $6D
 
-PlayField	= $6C
-; - 7D Plafield Blocks
+PlayField	= $6E
+; - 7F Plafield Blocks
 
 
 ; TIA I/O registers and timers

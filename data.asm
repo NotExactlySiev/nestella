@@ -2,9 +2,10 @@
 ; 0000 01xy memory access instruction. x write op, y not zero page
 ; 100c cccc interrupt. ccccc interrupt code
 ; x1xx xxxx illegal opcode
+; BRK is not included
 
 InstTypes:
-        .hex 81 04 ff ff ff 04 06 ff 9b 02 01 ff ff 05 07 ff
+        .hex ff 04 ff ff ff 04 06 ff 9b 02 01 ff ff 05 07 ff
         .hex 80 04 ff ff ff 04 06 ff 01 05 ff ff ff 05 07 ff
         .hex 91 04 ff ff 04 04 06 ff 93 02 01 ff 05 05 07 ff
         .hex 84 04 ff ff ff 04 06 ff 01 05 ff ff ff 05 07 ff
@@ -23,7 +24,7 @@ InstTypes:
 
 	; how many minimum cycles each opcode takes
 Cycles:
-        .hex 07 06 ff ff ff 03 05 ff 03 02 02 ff ff 04 06 ff
+        .hex ff 06 ff ff ff 03 05 ff 03 02 02 ff ff 04 06 ff
         .hex 02 05 ff ff ff 04 06 ff 02 04 ff ff ff 04 07 ff
         .hex 06 06 ff ff 03 03 05 ff 04 02 02 ff 04 04 06 ff
         .hex 02 05 ff ff ff 04 06 ff 02 04 ff ff ff 04 07 ff

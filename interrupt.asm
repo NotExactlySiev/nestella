@@ -4,7 +4,7 @@ InterruptHandler: subroutine
         stx IntX
         sty IntY
         pla
-        sta IntS
+        sta IntP
 
         
 	ldy BlockIndex
