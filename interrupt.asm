@@ -21,9 +21,37 @@ InterruptHandler: subroutine
         lsr
         lsr
         sta IntrID
+        lsr
+        bcs .jors
+        lsr
+        bcs .sync
+        ; Conditional Interrupt
+	sta IntrID
+        ldx JINTREL,y
         
-        
-        
+
+.sync
+	; Sync Interrupt
+
+
+.jors	lsr
+	bcs .stack
+        ; Jump Interrupt
+
+.stack
+	; Stack Interrupt
+	lsr
+        bcc .rw
+        lsr
+        bcc .txs
+	lda IntS
+        sta IntX
+        bvc .intdone
+.txs
+	lda IntX
+        sta IntS
+        bvc .intdone
+.rw
 
 
 .intdone

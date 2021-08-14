@@ -102,7 +102,8 @@ TMemoryAccess: subroutine
         jmp InstructionDone
 
 
-TAlwaysInterrupt: subroutine
+TAlwaysInterrupt: subroutine ; why aren't we putting values in the table here? 
+			     ; instead of putting them in a var and then in table?
 	lda InstType
         asl
         asl
@@ -113,6 +114,11 @@ TAlwaysInterrupt: subroutine
         lsr
         bcs .ncond
         ; Conditional interrupt
+        ldx BlockIndex
+        ldy #1
+        lda (TROMPtr),y
+        sta JINTREL,x
+        
         lda #2
         bne .nextop
     
