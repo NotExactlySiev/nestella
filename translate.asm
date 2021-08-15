@@ -69,7 +69,7 @@ TMemoryAccess: subroutine
         lda (TROMPtr),y
         sta OpCode,y
 	dey
-        bne .copyaddr
+        bpl .copyaddr
 
 	jsr MirrorAddr
         
@@ -99,6 +99,8 @@ TMemoryAccess: subroutine
 .nint
 	lda InstSize
         sta NESInstSize
+        lda OpCode
+        sta NESOpCode
         jmp InstructionDone
 
 
@@ -141,8 +143,18 @@ TAlwaysInterrupt: subroutine ; why aren't we putting values in the table here?
         iny
         lda (TROMPtr),y
         sta NESAddrHi
-        lda #3
-        bne .nextop
+        
+        sec
+        lda TROMPtr
+        sbc ATRPC
+        clc
+        adc #3
+        ldx BlockIndex
+        
+        sta JINTREL,x
+        
+        
+        bne EmitInterrupt
         
 .ntable
 	lda #1

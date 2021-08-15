@@ -39,6 +39,7 @@ InterruptHandler: subroutine
         ; Jump Interrupt
 	lsr
         bcc .table
+        ; -- RTS
         jsr PullStack
         sta var0
         jsr PullStack
@@ -63,7 +64,7 @@ InterruptHandler: subroutine
         ; -- JSR
         lda ATRPC
         clc
-        adc #5
+        adc JINTREL,y
         sta ATRPC
         lda ATRPC+1
         adc #0

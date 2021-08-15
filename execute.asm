@@ -59,8 +59,8 @@ ResumeProgram: subroutine
         
 	lda IntP
         pha
-        plp
         lda IntA        
         ldx IntX
         ldy IntY
+        plp
         jmp (NESPC)
