@@ -51,7 +51,6 @@ IntA		= $63
 IntX		= $64
 IntY		= $65
 IntP		= $66
-IntS		= $67
 
 ; Temporary Pointers
 
@@ -71,6 +70,7 @@ IOWrite		= $108
 
 ;;;---
 ATRPC		= $2D1
+IntS		= $2D3
 NESPC		= $2D5
 BlockIndex	= $2D7
 

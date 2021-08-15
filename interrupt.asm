@@ -26,8 +26,33 @@ InterruptHandler: subroutine
         lsr
         bcs .sync
         ; Conditional Interrupt
+        asl
+        asl
 	sta IntrID
+        lda #$e3
+        sta IntrID+1
+        
+        lda IntP
+        pha
+        lda #0
         ldx JINTREL,y
+        plp
+        jsr JumpToBranchCheck
+        
+        ldx #0
+        tay
+        bpl .pos
+        ldx #$ff
+.pos
+        stx var2 ; used as bit extension
+        
+        clc
+        adc var0
+        sta var0
+        lda var1
+        adc var2
+        sta var1
+        bvc .intdone
         
 
 .sync
@@ -167,3 +192,6 @@ PullStack: subroutine
         ldy #0
         lda (NESAddrLo),y
         rts
+        
+JumpToBranchCheck: subroutine
+	jmp (IntrID)
