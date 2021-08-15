@@ -30,11 +30,16 @@ CreateBlock: subroutine
         
 .nmem
 	; No changes
-	lda InstType
-        sta InstSize
-        sta NESInstSize
-	lda OpCode
-        sta NESOpCode
+	ldy InstType
+        sty InstSize
+        sty NESInstSize
+	dey
+.copy        
+        lda (TROMPtr),y
+        sta NESOpCode,y
+        dey
+        bpl .copy
+        
 
 InstructionDone
         ldy #0

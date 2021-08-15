@@ -11,9 +11,9 @@ InterruptHandler: subroutine
 
         
         lda JINTLO,y
-        sta ATRPC
+        sta var0
         lda JINTHI,y
-        sta ATRPC+1
+        sta var1
         
 
         lda JNESHI,y
@@ -37,6 +37,43 @@ InterruptHandler: subroutine
 .jors	lsr
 	bcs .stack
         ; Jump Interrupt
+	lsr
+        bcc .table
+        jsr PullStack
+        sta var0
+        jsr PullStack
+        sta var1
+        bvc .intdone
+.table
+	lsr
+        bcc .direct
+        ; -- JMP()
+        ldy #0
+        lda (var0),y
+        pha
+        iny
+        lda (var0),y
+        sta var1
+        pla
+        sta var0
+        bvc .intdone
+.direct
+	lsr
+        bcc .npush
+        ; -- JSR
+        lda ATRPC
+        clc
+        adc #5
+        sta ATRPC
+        lda ATRPC+1
+        adc #0
+        jsr PushStack
+        lda ATRPC
+        jsr PushStack
+.npush	
+	; -- JMP
+        bvc .intdone
+
 
 .stack
 	; Stack Interrupt
@@ -55,6 +92,10 @@ InterruptHandler: subroutine
 
 
 .intdone
+	lda var0
+        sta ATRPC
+        lda var1
+        sta ATRPC+1
 
         jmp SetNESPC
         
@@ -99,3 +140,29 @@ LineSync: subroutine
 
 .syncdone
 	rts
+        
+PushStack: subroutine
+	sta var2
+        lda IntS
+        sta AddrLo
+        lda #1
+        sta AddrHi
+        jsr MirrorAddr
+        dec IntS
+        
+        ldy #0
+        lda var2
+        sta (NESAddrLo),y
+        rts
+        
+PullStack: subroutine
+        inc IntS
+	lda IntS
+        sta AddrLo
+        lda #1
+        sta AddrHi
+        jsr MirrorAddr
+        
+        ldy #0
+        lda (NESAddrLo),y
+        rts
