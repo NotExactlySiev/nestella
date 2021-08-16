@@ -1,4 +1,5 @@
 InterruptHandler: subroutine
+	nop
 	php
         sta IntA
         stx IntX
