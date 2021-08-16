@@ -19,8 +19,9 @@ MirrorAddr: subroutine
         bmi .ntia
         ; 0000 xxxx 0xxx xxxx -> 0000 0000 0xxx xxxx
         ldy #0
-        ror InstType
-        bcc .ntiawrite
+        lda InstType
+        and #2
+        beq .ntiawrite
         ; -> 0000 0000 00xx xxxx Done
         txa
         and #$3f
@@ -50,6 +51,8 @@ MirrorAddr: subroutine
         bcc .nwrite
         ora #$8
 .nwrite
+	tax
+        
 .mirrordone
 	stx NESAddrLo
         sty NESAddrHi
