@@ -167,28 +167,41 @@ LineSync: subroutine
         cpy #192
         bcs .syncdone
         ;visible scanlines 1-192
-
-	ldy #2
-        jmp .readpf
-
-        ldy #0       
-.readpf        
-        lda PlayField,y
-        rol PF0
-        rol
-        rol PF0
-        rol
-        sta PlayField,y
-        iny
-        cpy #$4
-        bcc .readpf
-        
-        
         tya
+        lsr
+        bcs .syncdone	; only every other scanline is drawn
+        
+        ; reading playfield data
+        ldx #0
+        ldy #2
+.loop
+        lda PlayField-2,y
+        rol PF0,x
+        rol
+        rol PF0,x
+        rol
+        sta PlayField-2,y
+        
+        iny
+        tya
+        and #$3
+        bne .nnextpf
+        inx
+        cpx #3
+        beq .out
+.nnextpf
+        jmp .loop
+        
+.out
+
+	; drawing playfields
+        lda ScanLine
         and #$7
-        bne .nupdate
-        ; 8 rows completed. draw the playfield bytes  
-.nupdate
+        bne .ndraw
+        
+.ndraw
+	
+	
 
 .syncdone
 	rts
