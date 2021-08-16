@@ -58,7 +58,6 @@ TCachePtr	= $69
 TROMPtr		= $6B
 RollOver	= $6D
 
-PlayField	= $6E
 ; - 7F Plafield Blocks
 
 
@@ -66,11 +65,12 @@ PlayField	= $6E
 IORead		= $100
 IOWrite		= $108
 
+PlayField	= $110
 
 
 ;;;---
 ATRPC		= $2D1
-IntS		= $2D3
+IntS		= $180
 NESPC		= $2D5
 BlockIndex	= $2D7
 
