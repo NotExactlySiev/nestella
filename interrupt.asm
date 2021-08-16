@@ -53,12 +53,13 @@ InterruptHandler: subroutine
         lda var1
         adc var2
         sta var1
-        bvc .intdone
+        jmp .intdone
         
 
 .sync
 	; Sync Interrupt
-
+	jsr LineSync
+        bvc .intdone
 
 .jors	lsr
 	bcs .stack
@@ -70,7 +71,7 @@ InterruptHandler: subroutine
         sta var0
         jsr PullStack
         sta var1
-        bvc .intdone
+        jmp .intdone
 .table
 	lsr
         bcc .direct
@@ -83,7 +84,7 @@ InterruptHandler: subroutine
         sta var1
         pla
         sta var0
-        bvc .intdone
+        jmp .intdone
 .direct
 	lsr
         bcc .npush
@@ -99,7 +100,7 @@ InterruptHandler: subroutine
         jsr PushStack
 .npush	
 	; -- JMP
-        bvc .intdone
+        jmp .intdone
 
 
 .stack
@@ -108,15 +109,39 @@ InterruptHandler: subroutine
         bcc .rw
         lsr
         bcc .txs
+        ; TSX
 	lda IntS
         sta IntX
-        bvc .intdone
+        jmp .intdone
 .txs
+	; TXS
 	lda IntX
         sta IntS
-        bvc .intdone
+        jmp .intdone
 .rw
-
+	lsr
+        bcc .pull
+        ; PHx
+        ldx IntA
+        lsr
+        bcc .ac
+        ldx IntP
+.ac
+	txa
+        jsr PushStack
+	jmp .intdone
+.pull
+	; PLx
+	tax
+        jsr PullStack
+        cpx #0
+        bne .proc
+        ; PLA
+        sta IntA
+        jmp .intdone
+.proc
+	; PLP
+	sta IntP
 
 .intdone
 	lda var0
