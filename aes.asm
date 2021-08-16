@@ -229,10 +229,12 @@ NMIHandler:
 	txa
         rts
 
-
+	org $effa
+        ; Atari Vectors
+        .byte $00, $00, $00, $f0, $0f, $11
 
 	org $f000
-	incbin "rom.a26"
+	incbin "rom_raw.a26"
         incbin "rom.a26"
 
 	incbin "tiles.chr"
