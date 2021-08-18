@@ -71,7 +71,7 @@ DrawBuffer	= $130
 
 ;;;---
 ATRPC		= $2D1
-IntS		= $180
+IntS		= $2D3
 NESPC		= $2D5
 BlockIndex	= $2D7
 
