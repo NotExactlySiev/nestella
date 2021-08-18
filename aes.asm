@@ -100,11 +100,9 @@ INS_STA_ZPG	= $85
 INS_LDA_IMM	= $a9
 
 ROM_RESET	= $f000
-ROM_IRQ		= $f10f
 
 	seg.u ZEROPAGE
 	org $0
-
 ;;;;; NES CARTRIDGE HEADER
 
 
@@ -114,20 +112,15 @@ ROM_IRQ		= $f10f
 Start:
 	NES_INIT
 	jsr ClearRAM
-	lda #$3f	; $3F -> A register
-        sta PPU_ADDR	; write high byte first
-	lda #$00	; $00 -> A register
-        sta PPU_ADDR    ; $3F00 -> PPU address
-        lda #$1c	; $1C = light blue color
-        sta PPU_DATA    ; $1C -> PPU data
+
 ; activate PPU graphics
         lda #MASK_BG	; A = $08
         sta PPU_MASK	; enable rendering
         lda #CTRL_NMI	; A = $80
         sta PPU_CTRL	; enable NMI      
-	lda #$00
+	lda #<ROM_RESET
         sta ATRPC
-        lda #$f0
+        lda #>ROM_RESET
         sta ATRPC+1
         
         ldx #$3f
@@ -144,9 +137,9 @@ Start:
 	lda #$3f
         sta CacheOldest
 
-	lda #00
+	lda #<ROM_RESET
         sta TROMPtr
-        lda #$f0
+        lda #>ROM_RESET
         sta TROMPtr+1
         
         lda #$e3
@@ -174,21 +167,23 @@ NMIHandler: subroutine
         sta $202
         
 	PPU_SETADDR $3f00
-	lda $9
-        lsr
+	lda COLUBK
+        asl
+        asl
         and #$30
-        sta $80
-        lda $9
-        and #$0f
-        ora $80
-        
+        sta $2 ; we can use this as a temporary var
+        lda COLUBK
+        lsr
+        lsr
+        lsr
+        lsr
+        ora $2
         sta PPU_DATA
         
         lda DrawBuffer
         beq .ndraw
         
         ldx DrawBuffer
-        inx
         stx PPU_ADDR
         lda DrawBuffer+1
         sta PPU_ADDR
@@ -264,10 +259,9 @@ NMIHandler: subroutine
 
 	org $effa
         ; Atari Vectors
-        .byte $00, $00, $00, $f0, $0f, $11
+        .hex 1E 84 00 F0 00 00
 
 	org $f000
-	incbin "rom_raw.a26"
-        incbin "rom.a26"
+	incbin "rom.a26"
 
 	incbin "tiles.chr"

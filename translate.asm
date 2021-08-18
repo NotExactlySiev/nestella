@@ -8,7 +8,14 @@ MirrorAddr: subroutine
         ; xxx1 xxxx xxxx xxxx -> 1111 xxxx xxxx xxxx Done
 	tya
         ora #$f0
-        sta NESAddrHi
+        ; if > $fffa, redirect to the original vectors at $effa
+        cmp #$ff
+        bne .nvectors
+        cpx #$fa
+        bcc .nvectors
+        lda #$ef    
+.nvectors
+        tay
         bne .mirrordone
 .ncart
 	; xxx0 xxxx xxxx xxxx -> 0000 xxxx xxxx xxxx

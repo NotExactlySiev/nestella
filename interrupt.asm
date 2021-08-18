@@ -153,6 +153,7 @@ InterruptHandler: subroutine
         
         
 LineSync: subroutine
+	; TODO: reflection and the latter 20 tiles should also be translated
 	lda #2
         bit VSYNC
         beq .nvsync
@@ -165,10 +166,10 @@ LineSync: subroutine
         ; we don't do anything if in vblank
         cpy #192
         bcs .syncdone
-        ;visible scanlines 1-192
+        ;visible scanlines 0-191
         tya
         lsr
-        bcs .syncdone	; only every other scanline is drawn
+        bcs .odd	; only odd scanlines are processed and drawn
         
         ; reading playfield data
         ldx #0
@@ -187,44 +188,51 @@ LineSync: subroutine
         bne .nnextpf
         inx
         cpx #3
-        beq .out
+        beq .syncdone
 .nnextpf
         jmp .loop
-        
-.out
 
-	; drawing playfields
+.odd
+	and #$3
+        cmp #3
+        bne .syncdone
+        
+        ; after 8 scanlines, copy the converted playfield data to buffer
+        
+        ; PPU Address
         lda ScanLine
-        and #$7
-        bne .ndraw
-        
-        
         rol
         rol
         rol
         and #$3
         ora #$20
-        sta DrawBuffer
-        lda ScanLine
+        sta var2
+        
+        ldy ScanLine
+        iny
+        tya
         asl
         asl
-        ora #4
+        clc
+        adc #$84
         sta DrawBuffer+1
         
+        lda var2
+        adc #0
+        sta DrawBuffer
         
+        ; Tiles
         ldy #0
         ldx #0
-.loop2 
+.copy 
         lda PlayField,x
         sta DrawBuffer+2,x
         tya
         sta PlayField,x
         inx
         cpx #20
-        bne .loop2        
-.ndraw
-	
-	
+        bne .copy                
+.nbuffer
 
 .syncdone
 	
