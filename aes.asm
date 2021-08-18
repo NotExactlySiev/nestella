@@ -66,7 +66,8 @@ IORead		= $100
 IOWrite		= $108
 
 PlayField	= $110
-
+;;;---
+DrawBuffer	= $130
 
 ;;;---
 ATRPC		= $2D1
@@ -157,12 +158,20 @@ Start:
 
 
 	org $d000
-NMIHandler:
+NMIHandler: subroutine
         pha
         tya
         pha
         txa
         pha
+        
+        ; count how many scanlines in each frame
+        lda ScanLine
+        sec
+        sbc $202
+        sta $203
+        lda ScanLine
+        sta $202
         
 	PPU_SETADDR $3f00
 	lda $9
@@ -174,6 +183,25 @@ NMIHandler:
         ora $80
         
         sta PPU_DATA
+        
+        lda DrawBuffer
+        beq .ndraw
+        
+        lda DrawBuffer
+        sta PPU_ADDR
+        lda DrawBuffer+1
+        sta PPU_ADDR
+        
+        ldx #0
+.loop
+        lda DrawBuffer+2,x
+        sta PPU_DATA
+        inx
+        cpx #20
+        bcc .loop
+.ndraw
+        
+        
         lda #0
         sta PPU_ADDR
         sta PPU_ADDR

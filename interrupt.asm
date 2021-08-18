@@ -59,7 +59,7 @@ InterruptHandler: subroutine
 .sync
 	; Sync Interrupt
 	jsr LineSync
-        bvc .intdone
+        jmp .intdone
 
 .jors	lsr
 	bcs .stack
@@ -156,6 +156,7 @@ LineSync: subroutine
 	lda #2
         bit VSYNC
         beq .nvsync
+        inc $201
         lda #-37
         sta ScanLine
         bne .syncdone
@@ -199,6 +200,30 @@ LineSync: subroutine
         and #$7
         bne .ndraw
         
+        
+        rol
+        rol
+        rol
+        and #$3
+        ora #$20
+        sta DrawBuffer
+        lda ScanLine
+        asl
+        asl
+        ora #4
+        sta DrawBuffer+1
+        
+        
+        ldy #0
+        ldx #0
+.loop2 
+        lda PlayField,x
+        sta DrawBuffer+2,x
+        tya
+        sta PlayField,x
+        inx
+        cpx #20
+        bne .loop2        
 .ndraw
 	
 	
