@@ -162,8 +162,6 @@ LineSync: subroutine
         bne .syncdone
 .nvsync
 	ldy ScanLine
-        iny
-        sty ScanLine
         ; we don't do anything if in vblank
         cpy #192
         bcs .syncdone
@@ -229,6 +227,8 @@ LineSync: subroutine
 	
 
 .syncdone
+	
+        inc ScanLine
 	rts
         
 PushStack: subroutine

@@ -187,8 +187,9 @@ NMIHandler: subroutine
         lda DrawBuffer
         beq .ndraw
         
-        lda DrawBuffer
-        sta PPU_ADDR
+        ldx DrawBuffer
+        inx
+        stx PPU_ADDR
         lda DrawBuffer+1
         sta PPU_ADDR
         
@@ -199,6 +200,10 @@ NMIHandler: subroutine
         inx
         cpx #20
         bcc .loop
+        
+        lda #0
+        sta DrawBuffer
+        
 .ndraw
         
         
