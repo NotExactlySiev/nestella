@@ -71,7 +71,7 @@ DrawBuffer	= $130
 
 ;;;---
 ATRPC		= $2D1
-IntS		= $2D3
+IntS		= $180
 NESPC		= $2D5
 BlockIndex	= $2D7
 
@@ -90,6 +90,8 @@ JINTREL	= $4C0
 
 CodeBlocks	= $500
 
+CACHE_MAX_BLOCKS	= $40
+CACHE_BLOCKS_END	= $7FF
 
 INS_PHP		= $08
 INS_JSR		= $20
@@ -123,10 +125,12 @@ Start:
         lda #>ROM_RESET
         sta ATRPC+1
         
+        ; initialize the cache NES values to maximum, so they immidiately end cache invalidation the first time
         ldx #$3f
 .loop
         lda #$ff
         sta JNESHI,x
+        sta JNESLO,x
         dex
         bpl .loop
         

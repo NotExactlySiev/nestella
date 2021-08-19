@@ -96,11 +96,15 @@ AppendInstruction
         jmp .loop
 
 TranslationDone
+	ldx BlockIndex
+        lda BlockNESPCHi
+        sta JNESHI,x
 
 InvalidateCache
 	; compare every cache entry and remove them if they are overwritten
         ; var0 and var1 hold the pointer to the end of current block
-        ldx BlockIndex
+        and #$7	; this is inefficient!!!!
+        sta var0 ; store NESHI of the current block and the block that's being checked in v0 and v1 if needed
         
 	; we need two different algorithms for rolled over and non rolled over blocks
         ldy BlockIndex
@@ -109,10 +113,11 @@ InvalidateCache
 .method1
         	dey
                 bpl .nend
-		ldy #$3F
+		ldy #CACHE_MAX_BLOCKS-1
 .nend		; is the start of the block before the end of the current block OR after the start?
 		lda JNESHI,y
-        	cmp JNESHI,x
+                and #$7
+        	cmp var0
                 bcc .check2
                 bne .isin
 		lda JNESLO,y
@@ -120,6 +125,7 @@ InvalidateCache
                 bcs .isin
 .check2
         	lda JNESHI,y
+                and #$7
                 cmp TCachePtr+1
                 bcc .isin
                 bne .cachedone
@@ -131,10 +137,11 @@ InvalidateCache
 .method2
 		dey
                 bpl .nend2
-		ldy #$3F
+		ldy #CACHE_MAX_BLOCKS-1
 .nend2		; is the start of the block before the end of the current block AND after the start?
 		lda JNESHI,y
-                cmp JNESHI,x
+                and #$7
+                cmp var0
                 bcc .cachedone
                 bne .check4
                 lda JNESLO,y
@@ -143,9 +150,10 @@ InvalidateCache
                 beq .cachedone ; we shouldn't be here
 .check4
 		lda JNESHI,y
+                and #$7
 		cmp TCachePtr+1
                 bcc .isin
-                bne .method2
+                bne .cachedone
                 lda JNESLO,y
                 cmp TCachePtr
                 bcs .cachedone
@@ -153,10 +161,8 @@ InvalidateCache
 	lda #0
         sta JATRHI,y
         bit RollOver
-        bne .back2
-        beq .method1
-.back2
-	bne .method2
+        beq .method2
+        bne .method1
 
 .cachedone
 
@@ -173,8 +179,6 @@ UpdateTable
         sta JINTHI,x
         lda NESAddrLo
         sta JINTLO,x
-        lda BlockNESPCHi
-        sta JNESHI,x
         lda BlockCycles
         sta JCYCLES,x
 

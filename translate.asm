@@ -162,10 +162,10 @@ TAlwaysInterrupt: subroutine ; why aren't we putting values in the table here?
         ldx BlockIndex
         
         sta JINTREL,x
-        
-        
-        bne EmitInterrupt
-        
+ 
+        jmp EmitInterrupt
+
+
 .ntable
 	lda #1
 .nextop

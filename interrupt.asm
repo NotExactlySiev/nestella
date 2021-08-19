@@ -132,9 +132,9 @@ InterruptHandler: subroutine
 	jmp .intdone
 .pull
 	; PLx
-	tax
+	sta var2
         jsr PullStack
-        cpx #0
+        bit var2
         bne .proc
         ; PLA
         sta IntA
