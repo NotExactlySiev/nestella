@@ -48,8 +48,8 @@ LineSync: subroutine
 
 .out
 	lda ScanLine
-	and #$3
-        cmp #3
+	and #$7
+        cmp #7
         bne .syncdone
         
         ; after 8 scanlines, copy the converted playfield data to buffer

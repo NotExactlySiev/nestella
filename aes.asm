@@ -74,8 +74,6 @@ DrawBuffer	= $132
 BGColor		= $146
 PFColor		= $147
 UpdateColor	= $148
-
-
 PaletteCounter	= $150 ; counts tiles and sets the palette after 6 tiles
 
 ;;;---
@@ -181,6 +179,8 @@ SetColors
         lda #0
         sta PPU_ADDR
         sta PPU_ADDR
+        sta PPU_SCROLL
+        sta PPU_SCROLL
         
         
         lda #MASK_BG
