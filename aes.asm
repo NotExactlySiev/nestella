@@ -243,6 +243,7 @@ NMIHandler: subroutine
         ldx UpdateColor
         beq .ncolor
         
+        dex
         txa
         asl
         asl
@@ -277,6 +278,8 @@ NMIHandler: subroutine
 
 ;;;;; COMMON SUBROUTINES
 
+
+	include "graphics.asm"
 
 	include "interrupt.asm"
 	include "blocks.asm"
