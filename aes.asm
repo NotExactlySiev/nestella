@@ -155,6 +155,7 @@ Start:
 
 
         ldy #5
+        sty PaletteCounter
 SetColors        
         lda #$23
         sta PPU_ADDR
@@ -217,7 +218,7 @@ NMIHandler: subroutine
         
         lda DrawAddr+1
         clc
-        adc #$66
+        adc #$26
         sta var2
         lda DrawAddr
         adc #0
@@ -239,7 +240,7 @@ NMIHandler: subroutine
 .ndraw
         
         ldx UpdateColor
-        bne .ncolor
+        beq .ncolor
         
         txa
         asl
@@ -256,6 +257,7 @@ NMIHandler: subroutine
         lda PFColor
         sta PPU_DATA
 
+	
 .ncolor
         
         lda #0
@@ -280,6 +282,7 @@ NMIHandler: subroutine
 	include "translate.asm"
 	include "execute.asm"
 
+	include "sync.asm"
 
 	org $e000
 
