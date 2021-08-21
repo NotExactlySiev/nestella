@@ -1,3 +1,4 @@
+ConvertInputs: subroutine
 	ldx #0
         stx JOYPAD1
         inx
@@ -26,3 +27,4 @@
         asl
         sta $108
         sta $100
+        rts

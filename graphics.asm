@@ -13,6 +13,10 @@ ConvertColor: subroutine
         lsr
         lsr
         lsr
+        cmp #$d
+        bcc .nblackest
+        lda #$c
+.nblackest
         ora $2
 	rts
 
