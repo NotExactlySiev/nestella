@@ -30,7 +30,6 @@ BlockNESPCHi	= $59 ; this will also contain the interrupt type in it, so it's
 		      ; stored in the table after the block is fully translated
 
 ; Rendering
-
 ScanLine	= $5A ; which scanline we're currently on
 LineCycles	= $5B ; how many cycles since the scanline started
 
@@ -65,16 +64,18 @@ RollOver	= $6D
 IORead		= $100
 IOWrite		= $108
 
+
+
 PlayField	= $110
+DrawAddrHi	= $124
+DrawAddrLo	= $125
+DrawBuffer	= $126
 
-ColorSection	= $124
-
-DrawAddr	= $130
-DrawBuffer	= $132
-BGColor		= $146
-PFColor		= $147
-UpdateColor	= $148
-PaletteCounter	= $150 ; counts tiles and sets the palette after 6 tiles
+BGColor		= $13A
+PFColor		= $13B
+UpdateColor	= $13C
+ColorSection	= $13D ; which quarter of the screen we're in
+PaletteCounter	= $13E ; counts tiles and sets the palette after 6 tiles
 
 ;;;---
 ATRPC		= $2D1
@@ -212,15 +213,15 @@ NMIHandler: subroutine
         lda ScanLine
         sta $202
         
-        
-        lda DrawAddr
+        ; draw the buffer if there's anything in it
+        lda DrawAddrHi
         beq .ndraw
         
-        lda DrawAddr+1
+        lda DrawAddrLo
         clc
         adc #$26
         sta var2
-        lda DrawAddr
+        lda DrawAddrHi
         adc #0
         sta PPU_ADDR
         lda var2
@@ -231,11 +232,11 @@ NMIHandler: subroutine
         lda DrawBuffer,x
         sta PPU_DATA
         inx
-        cpx #10
+        cpx #20
         bcc .loop
         
         lda #0
-        sta DrawAddr
+        sta DrawAddrHi
         
 .ndraw
         
@@ -264,7 +265,7 @@ NMIHandler: subroutine
         sta PPU_ADDR
         sta PPU_ADDR
         
-        ;include "input.asm"
+        include "input.asm"
         
         pla
         tax
@@ -320,9 +321,8 @@ NMIHandler: subroutine
 
 	org $effa
         ; Atari Vectors
-        .hex 1E 84 00 F0 00 00
+        .hex 60 cd 00 b0 00 b0
 
 	org $f000
-	incbin "rom.a26"
-
+        incbin "rom.a26"
 	incbin "tiles.chr"

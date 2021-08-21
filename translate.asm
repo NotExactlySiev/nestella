@@ -47,7 +47,7 @@ MirrorAddr: subroutine
         tay
         ; 0000 00x0 1xxx xxxx
         beq .mirrordone
-        ; 0000 0010 1xxx xxxx -> 0000 0001 mxxx
+        ; 0000 0010 1xxx xxxx -> 0000 0001 0000 mxxx
 	; IO
         ldy #1
         txa
@@ -149,10 +149,12 @@ TAlwaysInterrupt: subroutine ; why aren't we putting values in the table here?
         
         ldy #1
         lda (TROMPtr),y
-        sta NESAddrLo
+        sta AddrLo
         iny
         lda (TROMPtr),y
-        sta NESAddrHi
+        sta AddrHi
+        
+        jsr MirrorAddr
         
         sec
         lda TROMPtr
