@@ -6,9 +6,9 @@ LineSync: subroutine
         inc $201
         lda #-37
         sta ScanLine
-        lda #5
+        lda #3 ; sets the counter so the colors for each section are read halfway through
         sta PaletteCounter
-        lda #0
+        lda #1
         sta ColorSection
         jmp .syncdone
 .nvsync
@@ -65,8 +65,12 @@ LineSync: subroutine
         tya
         asl
         asl
+        clc
+        adc #$86
         sta DrawAddrLo
-        
+        lda DrawAddrHi
+        adc #0
+        sta DrawAddrHi
         
         ; Tiles
         ldy #0
@@ -93,10 +97,11 @@ LineSync: subroutine
         lda COLUPF
         jsr ConvertColor
         sta PFColor
-
-	inc ColorSection
-	lda ColorSection
-        sta UpdateColor
+        
+	ldx ColorSection
+        stx UpdateColor
+        inx
+        stx ColorSection
         
 	ldx #5
 .paldone

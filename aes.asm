@@ -205,6 +205,9 @@ NMIHandler: subroutine
         txa
         pha
         
+        lda #00
+        sta PPU_CTRL
+        
         ; count how many scanlines in each frame
         lda ScanLine
         sec
@@ -216,15 +219,10 @@ NMIHandler: subroutine
         ; draw the buffer if there's anything in it
         lda DrawAddrHi
         beq .ndraw
-        
-        lda DrawAddrLo
-        clc
-        adc #$26
-        sta var2
+
         lda DrawAddrHi
-        adc #0
         sta PPU_ADDR
-        lda var2
+        lda DrawAddrLo
         sta PPU_ADDR
         
         ldx #0
@@ -265,8 +263,13 @@ NMIHandler: subroutine
         lda #0
         sta PPU_ADDR
         sta PPU_ADDR
+        sta UpdateColor
         
         include "input.asm"
+        
+        lda #$80
+        ldx PPU_STATUS
+        sta PPU_CTRL
         
         pla
         tax
