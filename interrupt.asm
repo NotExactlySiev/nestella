@@ -160,12 +160,18 @@ LineSync: subroutine
         inc $201
         lda #-37
         sta ScanLine
-        bne .syncdone
+        lda #5
+        sta PaletteCounter
+        lda #0
+        sta ColorSection
+        jmp .syncdone
 .nvsync
 	ldy ScanLine
         ; we don't do anything if in vblank
         cpy #192
-        bcs .syncdone
+        bcc .screen
+        jmp .syncdone
+.screen
         ;visible scanlines 0-191
         tya
         lsr
@@ -206,33 +212,67 @@ LineSync: subroutine
         rol
         and #$3
         ora #$20
-        sta var2
+        sta DrawAddr
         
         ldy ScanLine
         iny
         tya
         asl
         asl
-        clc
-        adc #$84
-        sta DrawBuffer+1
+        sta DrawAddr+1
         
-        lda var2
-        adc #0
-        sta DrawBuffer
         
         ; Tiles
         ldy #0
         ldx #0
 .copy 
         lda PlayField,x
-        sta DrawBuffer+2,x
+        sta DrawBuffer,x
         tya
         sta PlayField,x
         inx
         cpx #20
         bne .copy                
-.nbuffer
+
+	
+        ldx PaletteCounter
+        dex
+        bne .paldone
+        ; after 6 tiles (48 scanlines) set the palettes
+        
+        lda COLUBK
+        asl
+        asl
+        and #$30
+        sta $2 ; we can use this as a temporary var
+        lda COLUBK
+        lsr
+        lsr
+        lsr
+        lsr
+        ora $2
+        sta BGColor
+        
+        lda COLUPF
+        asl
+        asl
+        and #$30
+        sta $2 ; we can use this as a temporary var
+        lda COLUPF
+        lsr
+        lsr
+        lsr
+        lsr
+        ora $2
+        sta PFColor
+
+	inc ColorSection
+	lda ColorSection
+        sta UpdateColor
+        
+	ldx #5
+.paldone
+	stx PaletteCounter
 
 .syncdone
 	

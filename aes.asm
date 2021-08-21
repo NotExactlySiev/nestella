@@ -66,8 +66,17 @@ IORead		= $100
 IOWrite		= $108
 
 PlayField	= $110
-;;;---
-DrawBuffer	= $130
+
+ColorSection	= $124
+
+DrawAddr	= $130
+DrawBuffer	= $132
+BGColor		= $146
+PFColor		= $147
+UpdateColor	= $148
+
+
+PaletteCounter	= $150 ; counts tiles and sets the palette after 6 tiles
 
 ;;;---
 ATRPC		= $2D1
@@ -114,19 +123,14 @@ ROM_RESET	= $f000
 Start:
 	NES_INIT
 	jsr ClearRAM
-
-; activate PPU graphics
-        lda #MASK_BG	; A = $08
-        sta PPU_MASK	; enable rendering
-        lda #CTRL_NMI	; A = $80
-        sta PPU_CTRL	; enable NMI      
+    
 	lda #<ROM_RESET
         sta ATRPC
         lda #>ROM_RESET
         sta ATRPC+1
         
         ; initialize the cache NES values to maximum, so they immidiately end cache invalidation the first time
-        ldx #$3f
+        ldx #CACHE_MAX_BLOCKS-1
 .loop
         lda #$ff
         sta JNESHI,x
@@ -138,7 +142,7 @@ Start:
         sta CacheFree
         lda #>CodeBlocks
         sta CacheFree+1
-	lda #$3f
+	lda #CACHE_MAX_BLOCKS-1
         sta CacheOldest
 
 	lda #<ROM_RESET
@@ -146,12 +150,49 @@ Start:
         lda #>ROM_RESET
         sta TROMPtr+1
         
-        lda #$e3
+        lda #$E3
         sta BranchHead
+
+
+        ldy #5
+SetColors        
+        lda #$23
+        sta PPU_ADDR
+        tya
+        asl
+        asl
+        asl
+        clc
+        adc #$c9
+        sta PPU_ADDR
+        
+        ldx #6
+        lda Attributes,y
+.write        
+        sta PPU_DATA
+        dex
+        bne .write
+        
+        dey
+        bpl SetColors
+        
+        
+        lda #0
+        sta PPU_ADDR
+        sta PPU_ADDR
+        
+        
+        lda #MASK_BG
+        sta PPU_MASK	; enable rendering
+        lda #CTRL_NMI
+        sta PPU_CTRL	; enable NMI          
+        
+        
         
 	jmp SetNESPC
 
-
+Attributes:
+	.byte $00, $50, $55, $AA, $FA, $FF
 
 
 	org $d000
@@ -170,45 +211,58 @@ NMIHandler: subroutine
         lda ScanLine
         sta $202
         
-	PPU_SETADDR $3f00
-	lda COLUBK
-        asl
-        asl
-        and #$30
-        sta $2 ; we can use this as a temporary var
-        lda COLUBK
-        lsr
-        lsr
-        lsr
-        lsr
-        ora $2
-        sta PPU_DATA
         
-        lda DrawBuffer
+        lda DrawAddr
         beq .ndraw
         
-        ldx DrawBuffer
-        stx PPU_ADDR
-        lda DrawBuffer+1
+        lda DrawAddr+1
+        clc
+        adc #$66
+        sta var2
+        lda DrawAddr
+        adc #0
+        sta PPU_ADDR
+        lda var2
         sta PPU_ADDR
         
         ldx #0
 .loop
-        lda DrawBuffer+2,x
+        lda DrawBuffer,x
         sta PPU_DATA
         inx
-        cpx #20
+        cpx #10
         bcc .loop
         
         lda #0
-        sta DrawBuffer
+        sta DrawAddr
         
 .ndraw
         
+        ldx UpdateColor
+        bne .ncolor
+        
+        txa
+        asl
+        asl
+        tax
+        inx
+        lda #$3f
+        sta PPU_ADDR
+        stx PPU_ADDR
+        
+        lda BGColor
+        sta PPU_DATA
+        sta PPU_DATA
+        lda PFColor
+        sta PPU_DATA
+
+.ncolor
         
         lda #0
         sta PPU_ADDR
         sta PPU_ADDR
+        
+        ;include "input.asm"
         
         pla
         tax
