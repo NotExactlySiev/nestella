@@ -16,6 +16,17 @@ InterruptHandler: subroutine
         lda JINTHI,y
         sta var1
         
+        ; read the first half of the playfield if we reach the threshold
+	lda JCYCLES,y
+        clc
+        adc LineCycles
+        sta LineCycles
+        bit PlayfieldHalf
+        bne .halfdone
+        cmp #LEFT_PLAYFIELD_READ
+        bcc .halfdone
+        jsr ReadPlayfieldLeft
+.halfdone
 
         lda JNESHI,y
         lsr
@@ -53,13 +64,16 @@ InterruptHandler: subroutine
         lda var1
         adc var2
         sta var1
-        jmp .intdone
+        jmp InterruptDone
         
 
 .sync
 	; Sync Interrupt
-	jsr LineSync
-        jmp .intdone
+        lsr
+        bcs .leftpf
+        jmp LineSync
+.leftpf
+        jmp HalfPlayfieldRead
 
 .jors	lsr
 	bcs .stack
@@ -71,7 +85,7 @@ InterruptHandler: subroutine
         sta var0
         jsr PullStack
         sta var1
-        jmp .intdone
+        jmp InterruptDone
 .table
 	lsr
         bcc .direct
@@ -84,7 +98,7 @@ InterruptHandler: subroutine
         sta var1
         pla
         sta var0
-        jmp .intdone
+        jmp InterruptDone
 .direct
 	lsr
         bcc .npush
@@ -100,7 +114,7 @@ InterruptHandler: subroutine
         jsr PushStack
 .npush	
 	; -- JMP
-        jmp .intdone
+        jmp InterruptDone
 
 
 .stack
@@ -112,12 +126,12 @@ InterruptHandler: subroutine
         ; TSX
 	lda IntS
         sta IntX
-        jmp .intdone
+        jmp InterruptDone
 .txs
 	; TXS
 	lda IntX
         sta IntS
-        jmp .intdone
+        jmp InterruptDone
 .rw
 	lsr
         bcc .pull
@@ -129,7 +143,7 @@ InterruptHandler: subroutine
 .ac
 	txa
         jsr PushStack
-	jmp .intdone
+	jmp InterruptDone
 .pull
 	; PLx
 	sta var2
@@ -138,12 +152,12 @@ InterruptHandler: subroutine
         bne .proc
         ; PLA
         sta IntA
-        jmp .intdone
+        jmp InterruptDone
 .proc
 	; PLP
 	sta IntP
 
-.intdone
+InterruptDone
 	lda var0
         sta ATRPC
         lda var1
@@ -181,3 +195,8 @@ PullStack: subroutine
         
 JumpToBranchCheck: subroutine
 	jmp (IntrID)
+        
+HalfPlayfieldRead: subroutine
+	inc PlayfieldHalf
+        jsr ReadPlayfieldLeft
+	jmp InterruptDone

@@ -82,274 +82,202 @@ ConvertColor: subroutine
         ora $2
 	rts
 
-ReadPlayfieldNormal: subroutine
+ReadPlayfieldLeft: subroutine
+	inc PlayfieldHalf
 	; Playfield Byte 0
-	; Tile 0
         lda PF0
+        
+        ; Tile 0        
         ror
         rol PlayField
-        ror PF0
-        rol PlayField+10
-        
-	lda PF0
         ror
         rol PlayField
-        ror PF0
-        rol PlayField+10
-
-	; Tile 1
-        lda PF0
+        
+        ; Tile 1
         ror
         rol PlayField+1
-        ror PF0
-        rol PlayField+11
-        
-        lda PF0
         ror
         rol PlayField+1
-        ror PF0
-        rol PlayField+11        
+        
+        ; Playfield Byte 1
+        lda PF1
 
-	; Playfield Byte 1
-	; Tile 2
-        lda PF1
+        ; Tile 2
         rol
         rol PlayField+2
-        rol PF1
-        rol PlayField+12
-        
-        lda PF1
         rol
         rol PlayField+2
-        rol PF1
-        rol PlayField+12
         
-        ; Tile 3
-        lda PF1
         rol
         rol PlayField+3
-        rol PF1
-        rol PlayField+13
-        
-        lda PF1
         rol
         rol PlayField+3
-        rol PF1
-        rol PlayField+13  
         
-        ; Tile 4
-        lda PF1
         rol
         rol PlayField+4
-        rol PF1
-        rol PlayField+14
-        
-        lda PF1
         rol
         rol PlayField+4
-        rol PF1
-        rol PlayField+14
         
-        ; Tile 5
-        lda PF1
         rol
         rol PlayField+5
-        rol PF1
-        rol PlayField+15
-        
-        lda PF1
         rol
         rol PlayField+5
-        rol PF1
-        rol PlayField+15  
         
-        ; Playfield Byte 2
+        ; PlayField Byte 2
+        lda PF2
+        
         ; Tile 6
-        lda PF2
         ror
         rol PlayField+6
-        ror PF2
-        rol PlayField+16
-        
-        lda PF2
         ror
         rol PlayField+6
-        ror PF2
-        rol PlayField+16  
         
-        ; Tile 7
-        lda PF2
         ror
         rol PlayField+7
-        ror PF2
-        rol PlayField+17
-        
-        lda PF2
         ror
         rol PlayField+7
-        ror PF2
-        rol PlayField+17  
         
-        ; Tile 8
-        lda PF2
         ror
         rol PlayField+8
-        ror PF2
-        rol PlayField+18
-        
-        lda PF2
         ror
         rol PlayField+8
-        ror PF2
-        rol PlayField+18  
         
-        ; Tile 9
-        lda PF2
         ror
         rol PlayField+9
-        ror PF2
-        rol PlayField+19
-        
-        lda PF2
         ror
         rol PlayField+9
-        ror PF2
-        rol PlayField+19
         
         rts
-        
-ReadPlayfieldMirrored: subroutine
+
+
+ReadPlayfieldRightNormal: subroutine
 	; Playfield Byte 0
-	; Tile 0
         lda PF0
+        
+        ; Tile 0        
         ror
-        rol PlayField
-        ror PF0
-        rol PlayField+19
-    
-	lda PF0
+        rol PlayField+10
         ror
-        rol PlayField
-        ror PF0
-        rol PlayField+19
+        rol PlayField+10
+        
+        ; Tile 1
+        ror
+        rol PlayField+11
+        ror
+        rol PlayField+11
+        
+        ; Playfield Byte 1
+        lda PF1
 
-	; Tile 1
-        lda PF0
+        ; Tile 2
+        rol
+        rol PlayField+12
+        rol
+        rol PlayField+12
+        
+        rol
+        rol PlayField+13
+        rol
+        rol PlayField+13
+        
+        rol
+        rol PlayField+14
+        rol
+        rol PlayField+14
+        
+        rol
+        rol PlayField+15
+        rol
+        rol PlayField+15
+        
+        ; PlayField Byte 2
+        lda PF2
+        
+        ; Tile 6
         ror
-        rol PlayField+1
-        ror PF0
-        rol PlayField+18
-        
-        lda PF0
+        rol PlayField+16
         ror
-        rol PlayField+1
-        ror PF0
-        rol PlayField+18        
-
-	; Playfield Byte 1
-	; Tile 2
-        lda PF1
-        rol
-        rol PlayField+2
-        rol PF1
-        rol PlayField+17
-        
-        lda PF1
-        rol
-        rol PlayField+2
-        rol PF1
-        rol PlayField+17
-        
-        ; Tile 3
-        lda PF1
-        rol
-        rol PlayField+3
-        rol PF1
         rol PlayField+16
         
-        lda PF1
-        rol
-        rol PlayField+3
-        rol PF1
-        rol PlayField+16 
+        ror
+        rol PlayField+17
+        ror
+        rol PlayField+17
         
-        ; Tile 4
+        ror
+        rol PlayField+18
+        ror
+        rol PlayField+18
+        
+        ror
+        rol PlayField+19
+        ror
+        rol PlayField+19
+
+        rts	
+        
+ReadPlayfieldRightMirrored: subroutine
+	; Playfield Byte 0
+        lda PF0
+        
+        ; Tile 0        
+        ror
+        rol PlayField+19
+        ror
+        rol PlayField+19
+        
+        ; Tile 1
+        ror
+        rol PlayField+18
+        ror
+        rol PlayField+18
+        
+        ; Playfield Byte 1
         lda PF1
+
+        ; Tile 2
         rol
-        rol PlayField+4
-        rol PF1
+        rol PlayField+17
+        rol
+        rol PlayField+17
+        
+        rol
+        rol PlayField+16
+        rol
+        rol PlayField+16
+        
+        rol
+        rol PlayField+15
+        rol
         rol PlayField+15
         
-        lda PF1
         rol
-        rol PlayField+4
-        rol PF1
-        rol PlayField+15
-        
-        ; Tile 5
-        lda PF1
+        rol PlayField+14
         rol
-        rol PlayField+5
-        rol PF1
         rol PlayField+14
         
-        lda PF1
-        rol
-        rol PlayField+5
-        rol PF1
-        rol PlayField+14
+        ; PlayField Byte 2
+        lda PF2
         
-        ; Playfield Byte 2
         ; Tile 6
-        lda PF2
         ror
-        rol PlayField+6
-        ror PF2
+        rol PlayField+13
+        ror
         rol PlayField+13
         
-        lda PF2
         ror
-        rol PlayField+6
-        ror PF2
-        rol PlayField+13
-        
-        ; Tile 7
-        lda PF2
+        rol PlayField+12
         ror
-        rol PlayField+7
-        ror PF2
         rol PlayField+12
         
-        lda PF2
         ror
-        rol PlayField+7
-        ror PF2
-        rol PlayField+12
-        
-        ; Tile 8
-        lda PF2
+        rol PlayField+11
         ror
-        rol PlayField+8
-        ror PF2
         rol PlayField+11
         
-        lda PF2
         ror
-        rol PlayField+8
-        ror PF2
-        rol PlayField+11
-        
-        ; Tile 9
-        lda PF2
-        ror
-        rol PlayField+9
-        ror PF2
         rol PlayField+10
-        
-        lda PF2
         ror
-        rol PlayField+9
-        ror PF2
         rol PlayField+10
-        
+
         rts

@@ -93,6 +93,7 @@ AppendInstruction
         sta TCachePtr+1
         stx TCachePtr        
 .nrollover
+
         jmp .loop
 
 TranslationDone

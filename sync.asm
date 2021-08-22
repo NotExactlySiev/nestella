@@ -1,4 +1,6 @@
 LineSync: subroutine
+	lda #0
+        sta LineCycles
 	; TODO: reflection and the latter 20 tiles should also be translated
 	lda #2
         bit VSYNC
@@ -11,21 +13,21 @@ LineSync: subroutine
         lda #1
         sta ColorSection
         inc ScanLine
-        rts
+        jmp InterruptDone 
 .nvsync
 	ldy ScanLine
         ; we don't do anything if in vblank
         cpy #192
         bcc .screen
         inc ScanLine
-        rts
+        jmp InterruptDone 
 .screen
         ; visible scanlines 0-191
         tya
         lsr
         bcs .odd	; only odd scanlines are processed and drawn
 	inc ScanLine
-        rts  
+        jmp InterruptDone  
 .odd
 
         ; reading playfield data
@@ -37,22 +39,30 @@ LineSync: subroutine
         lsr
         lsr
         sta PF0
+        
+        bit PlayfieldHalf
+        bne .leftdone
+        jsr ReadPlayfieldLeft
+.leftdone
 
         lda CTRLPF
         and #1
         bne .mirrored
-        jsr ReadPlayfieldNormal
+        jsr ReadPlayfieldRightNormal
 	jmp .readdone
 .mirrored
-	jsr ReadPlayfieldMirrored
+	jsr ReadPlayfieldRightMirrored
 .readdone
+
+	lda #0
+        sta PlayfieldHalf
 
 	lda ScanLine
 	and #$7
         cmp #7	; have we read a entire row of tiles?
         beq .rowcomplete
         inc ScanLine
-        rts
+        jmp InterruptDone
 .rowcomplete
         
         ; after 8 scanlines, copy the converted playfield data to buffer
@@ -115,6 +125,6 @@ LineSync: subroutine
 .syncdone
 	
         inc ScanLine
-	rts
+	jmp InterruptDone
         
         

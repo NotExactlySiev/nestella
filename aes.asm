@@ -73,7 +73,7 @@ UpdateColor	= $112
 ColorSection	= $113 ; which quarter of the screen we're in
 PaletteCounter	= $114 ; counts tiles and sets the palette after 6 tiles
 PlayField	= $115 ; - $128
-;;---
+PlayfieldHalf	= $129 ; the left half has already been read
 
 ; six 22 byte buffers should be enough jesus christ
 DrawBuffer0	= $130
@@ -109,6 +109,9 @@ CodeBlocks	= $500
 
 CACHE_MAX_BLOCKS	= $40
 CACHE_BLOCKS_END	= $7FF
+LEFT_PLAYFIELD_READ	= 38 ; at how many cycles after the start of the line should we read the first half
+                             ; of the pf. if we don't reach this number, both halves are read after WSYNC
+                             ; should generally be 32-44
 
 INS_PHP		= $08
 INS_JSR		= $20

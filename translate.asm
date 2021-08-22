@@ -113,6 +113,15 @@ TMemoryAccess: subroutine
         sta NESOpCode
         jmp InstructionDone
 
+THalfScreen: subroutine
+	lda #$30
+        ora BlockNESPCHi
+        sta BlockNESPCHi
+        lda TROMPtr
+        sta NESAddrLo
+        lda TROMPtr+1
+        sta NESAddrHi
+	jmp EmitInterrupt
 
 TAlwaysInterrupt: subroutine ; why aren't we putting values in the table here? 
 			     ; instead of putting them in a var and then in table?
