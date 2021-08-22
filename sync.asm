@@ -10,19 +10,22 @@ LineSync: subroutine
         sta PaletteCounter
         lda #1
         sta ColorSection
-        jmp .syncdone
+        inc ScanLine
+        rts
 .nvsync
 	ldy ScanLine
         ; we don't do anything if in vblank
         cpy #192
         bcc .screen
-        jmp .syncdone
+        inc ScanLine
+        rts
 .screen
         ; visible scanlines 0-191
         tya
         lsr
         bcs .odd	; only odd scanlines are processed and drawn
-	jmp .syncdone     
+	inc ScanLine
+        rts  
 .odd
 
         ; reading playfield data
@@ -46,45 +49,47 @@ LineSync: subroutine
 
 	lda ScanLine
 	and #$7
-        cmp #7
-        bne .syncdone
+        cmp #7	; have we read a entire row of tiles?
+        beq .rowcomplete
+        inc ScanLine
+        rts
+.rowcomplete
         
         ; after 8 scanlines, copy the converted playfield data to buffer
         
-        ; PPU Address
-        lda ScanLine
-        rol
-        rol
-        rol
-        and #$3
-        ora #$20
-        sta DrawAddrHi
+	bit DrawBuffer0
+        bne .n0
+        FILL_BUFFER 0
+	jmp .buffdone
         
-        ldy ScanLine
-        iny
-        tya
-        asl
-        asl
-        clc
-        adc #$86
-        sta DrawAddrLo
-        lda DrawAddrHi
-        adc #0
-        sta DrawAddrHi
+.n0	bit DrawBuffer1
+        bne .n1
+        FILL_BUFFER 1
+        jmp .buffdone
         
-        ; Tiles
-        ldy #0
-        ldx #0
-.copy 
-        lda PlayField,x
-        sta DrawBuffer,x
-        tya
-        sta PlayField,x
-        inx
-        cpx #20
-        bne .copy                
+.n1	bit DrawBuffer2
+        bne .n2
+        FILL_BUFFER 2
+        jmp .buffdone
+.n2
+	bit DrawBuffer3
+        bne .n3
+	FILL_BUFFER 3
+        jmp .buffdone
+.n3	
+	bit DrawBuffer4
+        bne .n4
+	FILL_BUFFER 4
+        jmp .buffdone
+.n4	
+	bit DrawBuffer5
+        bne .n5
+	FILL_BUFFER 5
+        beq .buffdone
+.n5	
+	inc $210
+.buffdone        
 
-	
         ldx PaletteCounter
         dex
         bne .paldone

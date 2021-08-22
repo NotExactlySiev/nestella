@@ -15,29 +15,7 @@ NMIHandler: subroutine
         sta $203
         lda ScanLine
         sta $202
-        
-        ; draw the buffer if there's anything in it
-        lda DrawAddrHi
-        beq .ndraw
-
-        lda DrawAddrHi
-        sta PPU_ADDR
-        lda DrawAddrLo
-        sta PPU_ADDR
-        
-        ldx #0
-.loop
-        lda DrawBuffer,x
-        sta PPU_DATA
-        inx
-        cpx #20
-        bcc .loop
-        
-        lda #0
-        sta DrawAddrHi
-        
-.ndraw
-        
+                        
         ldx UpdateColor
         beq .ncolor
         
@@ -57,14 +35,21 @@ NMIHandler: subroutine
         lda PFColor
         sta PPU_DATA
 
-	
 .ncolor
+
+	; draw the buffers if there's anything in them
+        DRAW_BUFFER 0
+	DRAW_BUFFER 1
+        DRAW_BUFFER 2
+        DRAW_BUFFER 3
+        DRAW_BUFFER 4
+        DRAW_BUFFER 5
         
         lda #0
         sta PPU_ADDR
         sta PPU_ADDR
         sta UpdateColor
-        
+        ;sta $210
         
         jsr ConvertInputs
         

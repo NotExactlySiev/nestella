@@ -66,20 +66,29 @@ IOWrite		= $108
 
 
 
-PlayField	= $110
-DrawAddrHi	= $124
-DrawAddrLo	= $125
-DrawBuffer	= $126
 
-BGColor		= $13A
-PFColor		= $13B
-UpdateColor	= $13C
-ColorSection	= $13D ; which quarter of the screen we're in
-PaletteCounter	= $13E ; counts tiles and sets the palette after 6 tiles
+BGColor		= $110
+PFColor		= $111
+UpdateColor	= $112
+ColorSection	= $113 ; which quarter of the screen we're in
+PaletteCounter	= $114 ; counts tiles and sets the palette after 6 tiles
+PlayField	= $115 ; - $128
+;;---
+
+; six 22 byte buffers should be enough jesus christ
+DrawBuffer0	= $130
+DrawBuffer1	= $148
+DrawBuffer2	= $160
+DrawBuffer3	= $178
+DrawBuffer4	= $190
+DrawBuffer5	= $1A8 ; - $1BF
+
+;;---
+
 
 ;;;---
 ATRPC		= $2D1
-IntS		= $180
+IntS		= $2D3
 NESPC		= $2D5
 BlockIndex	= $2D7
 
