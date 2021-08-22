@@ -6,8 +6,8 @@
 
 ; 40 - 45 atari registers
 
-var0		= $46
-var1		= $47
+var0		= $46 ; used by interrupt handler!!!!!
+var1		= $47 ; used by interrupt handler!!!!! be careful
 var2		= $48
 var3		= $49
 

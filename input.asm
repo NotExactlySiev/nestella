@@ -1,11 +1,12 @@
 ConvertInputs: subroutine
-	ldx #0
+	ldx #1
         stx JOYPAD1
-        inx
+        dex
         stx JOYPAD1
         
         lda JOYPAD1
         and #1
+        eor #1
         sta $10A
         bit JOYPAD1
         bit JOYPAD1
@@ -25,6 +26,6 @@ ConvertInputs: subroutine
         asl
         asl
         asl
-        sta $108
+        eor #$f0
         sta $100
         rts
