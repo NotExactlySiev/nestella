@@ -16,18 +16,6 @@ InterruptHandler: subroutine
         lda JINTHI,y
         sta var1
         
-        ; read the first half of the playfield if we reach the threshold
-	lda JCYCLES,y
-        clc
-        adc LineCycles
-        sta LineCycles
-        bit PlayfieldHalf
-        bne .halfdone
-        cmp #LEFT_PLAYFIELD_READ
-        bcc .halfdone
-        jsr ReadPlayfieldLeft
-.halfdone
-
         lda JNESHI,y
         lsr
         lsr
@@ -73,7 +61,7 @@ InterruptHandler: subroutine
         bcs .leftpf
         jmp LineSync
 .leftpf
-        jmp HalfPlayfieldRead
+        jmp PlayfieldChange
 
 .jors	lsr
 	bcs .stack
@@ -195,8 +183,3 @@ PullStack: subroutine
         
 JumpToBranchCheck: subroutine
 	jmp (IntrID)
-        
-HalfPlayfieldRead: subroutine
-	inc PlayfieldHalf
-        jsr ReadPlayfieldLeft
-	jmp InterruptDone

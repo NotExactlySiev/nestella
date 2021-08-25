@@ -31,7 +31,6 @@ BlockNESPCHi	= $59 ; this will also contain the interrupt type in it, so it's
 
 ; Rendering
 ScanLine	= $5A ; which scanline we're currently on
-LineCycles	= $5B ; how many cycles since the scanline started
 
 Sprite0H	= $5C
 Sprite1H	= $5D
@@ -75,7 +74,7 @@ PaletteCounter	= $114 ; counts tiles and sets the palette after 6 tiles
 PlayField	= $115 ; - $128
 PlayfieldHalf	= $129 ; the left half has already been read
 
-; six 22 byte buffers should be enough jesus christ
+; six 24 byte buffers should be enough jesus christ
 DrawBuffer0	= $130
 DrawBuffer1	= $148
 DrawBuffer2	= $160
@@ -83,7 +82,22 @@ DrawBuffer3	= $178
 DrawBuffer4	= $190
 DrawBuffer5	= $1A8 ; - $1BF
 
-;;---
+PF0old		= $1C0
+PF1old		= $1C1
+PF2old		= $1C2
+
+PFLeft0		= $1C3
+PFLeft1		= $1C4
+PFLeft2		= $1C5
+PFRight0	= $1C6
+PFRight1	= $1C7
+PFRight2	= $1C8
+LineCycles	= $1C9 ; how many cycles since the scanline started
+LastDrawnPixel	= $1CA
+
+PFMask0		= $1CB
+PFMask1		= $1CC
+PFMask2		= $1CD
 
 
 ;;;---

@@ -84,44 +84,39 @@ TMemoryAccess: subroutine
 	jsr MirrorAddr
         
         ; check if causes interrupt
+        ; reads don't interrupt
         lda #2
         bit InstType
         beq .nint
-        tax
         
         lda NESAddrHi
         bne .nint
-        cpx NESAddrLo
-        bne .nint
+        
+        lda NESAddrLo
+        cmp #$2
+        bne .nwsync
         ; it's a sync
         ; use NESAddrHi and Lo for the interrupt return address since we no longer need those variables
         lda #$10
-        ora BlockNESPCHi
+	bne .intdone
+.nwsync
+	cmp #$d
+        bcc .nint
+        cmp #$10
+        bcc .nint
+	lda #$30
+.intdone
+	ora BlockNESPCHi
         sta BlockNESPCHi
-        clc
-        lda TROMPtr
-        adc InstSize
-        sta NESAddrLo
-        lda TROMPtr+1
-        adc #0
-        sta NESAddrHi
-	jmp EmitInterrupt
+        lda InstSize
+        bne ReturnNextOp
+
 .nint
 	lda InstSize
         sta NESInstSize
         lda OpCode
         sta NESOpCode
         jmp InstructionDone
-
-THalfScreen: subroutine
-	lda #$30
-        ora BlockNESPCHi
-        sta BlockNESPCHi
-        lda TROMPtr
-        sta NESAddrLo
-        lda TROMPtr+1
-        sta NESAddrHi
-	jmp EmitInterrupt
 
 TAlwaysInterrupt: subroutine ; why aren't we putting values in the table here? 
 			     ; instead of putting them in a var and then in table?
@@ -141,14 +136,14 @@ TAlwaysInterrupt: subroutine ; why aren't we putting values in the table here?
         sta JINTREL,x
         
         lda #2
-        bne .nextop
+        bne ReturnNextOp
     
 .ncond	lsr
 	bcc .nstack
         
         ; Stack interrupt
         lda #1
-        bne .nextop
+        bne ReturnNextOp
 
         
 .nstack 
@@ -179,8 +174,10 @@ TAlwaysInterrupt: subroutine ; why aren't we putting values in the table here?
 
 .ntable
 	lda #1
-.nextop
-        clc
+
+; set the return address to right where it was left off
+ReturnNextOp:
+	clc
         adc TROMPtr
         sta NESAddrLo
         lda TROMPtr+1

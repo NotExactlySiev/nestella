@@ -33,29 +33,7 @@ LineSync: subroutine
         ; reading playfield data
         ; I did write some nice ass code here but apparently the bit order differs for each playfield byte
         ; so fuck it we're gonna do it the quick and dirty way. two different branches for mirrored and repeated
-	lda PF0
-        lsr
-        lsr
-        lsr
-        lsr
-        sta PF0
-        
-        bit PlayfieldHalf
-        bne .leftdone
-        jsr ReadPlayfieldLeft
-.leftdone
 
-        lda CTRLPF
-        and #1
-        bne .mirrored
-        jsr ReadPlayfieldRightNormal
-	jmp .readdone
-.mirrored
-	jsr ReadPlayfieldRightMirrored
-.readdone
-
-	lda #0
-        sta PlayfieldHalf
 
 	lda ScanLine
 	and #$7
@@ -128,3 +106,58 @@ LineSync: subroutine
 	jmp InterruptDone
         
         
+
+PlayfieldChange: subroutine
+	lda LineCycles
+	; divide by 3 and shift left to roughly get what pixels should be drawn
+	sta var2
+        lsr
+        lsr
+        adc var2
+        ror
+        lsr
+        adc var2
+        ror
+        lsr
+        adc var2
+        ror
+        lsr
+        adc var2
+        ror
+	tay
+        
+        ldx LastDrawnPixel
+        sty LastDrawnPixel
+        
+        lda PF0
+
+	lda PF0
+        sta PF0old
+        lda PF1
+        sta PF1old
+        lda PF2
+        sta PF2old
+
+
+	jmp InterruptDone
+        
+PF0Masks:
+	.byte %00000000, $00010000, %00110000, %01110000
+        .byte %11110000, %11110000, %11110000, %11110000
+        .byte %11110000, %11110000, %11110000, %11110000
+        .byte %11110000, %11110000, %11110000, %11110000
+        .byte %11110000, %11110000, %11110000, %11110000
+        
+PF1Masks:
+	.byte %00000000, %00000000, %00000000, %00000000
+	.byte %00000000, %10000000, %11000000, %11100000
+        .byte %11110000, %11111000, %11111100, %11111110
+        .byte %11111111, %11111111, %11111111, %11111111
+        .byte %11111111, %11111111, %11111111, %11111111
+        
+PF2Masks:
+	.byte %00000000, %00000000, %00000000, %00000000
+	.byte %00000000, %00000000, %00000000, %00000000
+	.byte %00000000, %00000000, %00000000, %00000000
+	.byte %00000001, %00000011, %00000111, %00001111
+        .byte %00011111, %00111111, %01111111, %11111111
