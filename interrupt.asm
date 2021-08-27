@@ -9,7 +9,10 @@ InterruptHandler: subroutine
 
         
 	ldy BlockIndex
-
+	lda JCYCLES,y
+        clc
+        adc LineCycles
+        sta LineCycles
         
         lda JINTLO,y
         sta var0

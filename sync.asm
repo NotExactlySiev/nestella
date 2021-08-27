@@ -30,10 +30,18 @@ LineSync: subroutine
         jmp InterruptDone  
 .odd
 
-        ; reading playfield data
-        ; I did write some nice ass code here but apparently the bit order differs for each playfield byte
-        ; so fuck it we're gonna do it the quick and dirty way. two different branches for mirrored and repeated
+	lda LastDrawnPixel
+        cmp #20
+	bcs .nsplit
+        
+        ;;;;;;; finish this jesus
+        
+        jmp .linedone
+.nsplit
 
+
+
+.linedone
 
 	lda ScanLine
 	and #$7
@@ -108,6 +116,11 @@ LineSync: subroutine
         
 
 PlayfieldChange: subroutine
+	lda ScanLine
+        lsr
+        bcs .odd
+        jmp InterruptDone
+.odd
 	lda LineCycles
 	; divide by 3 and shift left to roughly get what pixels should be drawn
 	sta var2
@@ -129,8 +142,45 @@ PlayfieldChange: subroutine
         ldx LastDrawnPixel
         sty LastDrawnPixel
         
-        lda PF0
+        ; var2 is used to tell the function which side to update
+        
+        cpy #20
+        bcc .left
 
+        cpx #20
+        bcc .split
+        ; both points are in the right
+        lda #1
+        sta var2
+        txa
+        sec
+        sbc #20
+        tax
+        tya
+        sec
+        sbc #20
+        tay
+        jsr ReadPlayfieldRight   
+        jmp .readdone
+
+.split
+        ; it's split if we're here
+	tya
+        sec
+        sbc #20
+        tay
+	stx var2
+        ldx #0
+        jsr ReadPlayfieldRight
+        ldx var2
+        ldy #19
+.left
+	; both points are in the left
+        jmp ReadPlayfieldLeft
+.readdone
+
+
+CopyOld
 	lda PF0
         sta PF0old
         lda PF1
@@ -138,9 +188,50 @@ PlayfieldChange: subroutine
         lda PF2
         sta PF2old
 
-
 	jmp InterruptDone
+
+; and it reads from pixel x to y
+ReadPlayfieldLeft: subroutine
+	lda PF0Masks,y
+        eor PF0Masks,x
+        and PF0old
+        ora PFLeft0
+        sta PFLeft0
         
+	lda PF1Masks,y
+        eor PF1Masks,x
+        and PF1old
+        ora PFLeft1
+        sta PFLeft1
+        
+	lda PF2Masks,y
+        eor PF2Masks,x
+        and PF2old
+        ora PFLeft2
+        sta PFLeft2
+        jmp CopyOld
+
+ReadPlayfieldRight: subroutine
+	lda PF0Masks,y
+        eor PF0Masks,x
+        and PF0old
+        ora PFRight0
+        sta PFRight0
+        
+	lda PF1Masks,y
+        eor PF1Masks,x
+        and PF1old
+        ora PFRight1
+        sta PFRight1
+        
+	lda PF2Masks,y
+        eor PF2Masks,x
+        and PF2old
+        ora PFRight2
+        sta PFRight2
+        rts
+
+
 PF0Masks:
 	.byte %00000000, $00010000, %00110000, %01110000
         .byte %11110000, %11110000, %11110000, %11110000
