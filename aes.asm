@@ -71,8 +71,7 @@ PFColor		= $111
 UpdateColor	= $112
 ColorSection	= $113 ; which quarter of the screen we're in
 PaletteCounter	= $114 ; counts tiles and sets the palette after 6 tiles
-PlayField	= $115 ; - $128
-PlayfieldHalf	= $129 ; the left half has already been read
+Playfield	= $115 ; - $128
 
 ; six 24 byte buffers should be enough jesus christ
 DrawBuffer0	= $130
@@ -94,10 +93,6 @@ PFRight1	= $1C7
 PFRight2	= $1C8
 LineCycles	= $1C9 ; how many cycles since the scanline started
 LastDrawnPixel	= $1CA
-
-PFMask0		= $1CB
-PFMask1		= $1CC
-PFMask2		= $1CD
 
 
 ;;;---
@@ -178,6 +173,8 @@ Start:
         lda #$E3
         sta BranchHead
 
+	lda #-22
+        sta LineCycles
 
         ldy #5
         sty PaletteCounter

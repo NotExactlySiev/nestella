@@ -8,7 +8,7 @@ NMIHandler: subroutine
         lda #00
         sta PPU_CTRL
         
-        ; count how many scanlines in each frame
+        ; count how many scanlines in each nes frame
         lda ScanLine
         sec
         sbc $202
@@ -49,7 +49,6 @@ NMIHandler: subroutine
         sta PPU_ADDR
         sta PPU_ADDR
         sta UpdateColor
-        ;sta $210
         
         jsr ConvertInputs
         

@@ -1,5 +1,5 @@
-LineSync: subroutine
-	lda #0
+ILineSync: subroutine
+	lda #-22
         sta LineCycles
 	; TODO: reflection and the latter 20 tiles should also be translated
 	lda #2
@@ -30,18 +30,8 @@ LineSync: subroutine
         jmp InterruptDone  
 .odd
 
-	lda LastDrawnPixel
-        cmp #20
-	bcs .nsplit
-        
-        ;;;;;;; finish this jesus
-        
-        jmp .linedone
-.nsplit
-
-
-
-.linedone
+	; read the rest of the line since the PFx bytes aren't gonna change
+	jsr FinishLine
 
 	lda ScanLine
 	and #$7
@@ -84,7 +74,8 @@ LineSync: subroutine
         beq .buffdone
 .n5	
 	inc $210
-.buffdone        
+.buffdone
+
 
         ldx PaletteCounter
         dex
@@ -96,6 +87,7 @@ LineSync: subroutine
         sta BGColor
         
         lda COLUPF
+        lda #$94 ; TEMPORARY!!!!!!!!!!!!!!!
         jsr ConvertColor
         sta PFColor
         
@@ -115,13 +107,14 @@ LineSync: subroutine
         
         
 
-PlayfieldChange: subroutine
+IPlayfieldChange: subroutine
 	lda ScanLine
         lsr
-        bcs .odd
-        jmp InterruptDone
-.odd
+        bcc CopyOld
+        
 	lda LineCycles
+        bmi CopyOld
+        
 	; divide by 3 and shift left to roughly get what pixels should be drawn
 	sta var2
         lsr
@@ -138,20 +131,35 @@ PlayfieldChange: subroutine
         adc var2
         ror
 	tay
-        
+
+	cpy LastDrawnPixel
+        bcs .nwrap
+        tya
+        pha
+        jsr FinishLine
+        pla
+        tay
+.nwrap
+
         ldx LastDrawnPixel
-        sty LastDrawnPixel
-        
-        ; var2 is used to tell the function which side to update
-        
+	sty LastDrawnPixel
+
+	; now that x and y are set with the correct pixel numbers, this subroutine reads
+        ; pixels in that range and updates the playfield buffer bytes
+ReadPlayfieldRange
+	sty var2
+	cpx var2
+        bcc .normal
+        nop
+        nop
+.normal
+
         cpy #20
         bcc .left
 
         cpx #20
         bcc .split
         ; both points are in the right
-        lda #1
-        sta var2
         txa
         sec
         sbc #20
@@ -188,7 +196,32 @@ CopyOld
         lda PF2
         sta PF2old
 
-	jmp InterruptDone
+	rts
+
+FinishLine: subroutine
+	ldx LastDrawnPixel
+        ldy #39
+        jsr ReadPlayfieldRange
+
+	lda #0
+        sta LastDrawnPixel
+        
+        UPDATE_TILES_LEFT
+        ror CTRLPF
+        bcc .nmirror
+        UPDATE_TILES_RIGHT_MIRRORED
+        jmp .linedone
+.nmirror
+        UPDATE_TILES_RIGHT
+.linedone
+	lda #0
+        sta PFRight0
+        sta PFRight1
+        sta PFRight2
+        sta PFLeft0
+        sta PFLeft1
+        sta PFLeft2
+	rts
 
 ; and it reads from pixel x to y
 ReadPlayfieldLeft: subroutine
