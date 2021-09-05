@@ -115,23 +115,17 @@ IPlayfieldChange: subroutine
 	lda LineCycles
         bmi CopyOld
         
-	; divide by 3 and shift left to roughly get what pixels should be drawn
-	sta var2
+	; multiply by 3 and divide by 4
+        asl
+        clc
+        adc LineCycles
+        sec
         lsr
         lsr
-        adc var2
-        ror
-        lsr
-        adc var2
-        ror
-        lsr
-        adc var2
-        ror
-        lsr
-        adc var2
-        ror
-	tay
-
+        
+        tay
+        
+        
 	cpy LastDrawnPixel
         bcs .nwrap
         tya
@@ -142,51 +136,10 @@ IPlayfieldChange: subroutine
 .nwrap
 
         ldx LastDrawnPixel
-	sty LastDrawnPixel
-
+        sty LastDrawnPixel
 	; now that x and y are set with the correct pixel numbers, this subroutine reads
         ; pixels in that range and updates the playfield buffer bytes
-ReadPlayfieldRange
-	sty var2
-	cpx var2
-        bcc .normal
-        nop
-        nop
-.normal
-
-        cpy #20
-        bcc .left
-
-        cpx #20
-        bcc .split
-        ; both points are in the right
-        txa
-        sec
-        sbc #20
-        tax
-        tya
-        sec
-        sbc #20
-        tay
-        jsr ReadPlayfieldRight   
-        jmp .readdone
-
-.split
-        ; it's split if we're here
-	tya
-        sec
-        sbc #20
-        tay
-	stx var2
-        ldx #0
-        jsr ReadPlayfieldRight
-        ldx var2
-        ldy #19
-.left
-	; both points are in the left
-        jmp ReadPlayfieldLeft
-.readdone
-
+	jsr ReadPlayfieldRange
 
 CopyOld
 	lda PF0
@@ -196,8 +149,10 @@ CopyOld
         lda PF2
         sta PF2old
 
-	rts
+	jmp InterruptDone
 
+
+; finish drawing the last scanline, clear buffers for the next
 FinishLine: subroutine
 	ldx LastDrawnPixel
         ldy #39
@@ -223,7 +178,41 @@ FinishLine: subroutine
         sta PFLeft2
 	rts
 
-; and it reads from pixel x to y
+
+; these subroutines read the playfield data after x and y are set
+ReadPlayfieldRange: subroutine
+        cpy #20
+        bcc .left
+
+        cpx #20
+        bcc .split
+        ; both points are in the right
+        txa
+        sec
+        sbc #20
+        tax
+        tya
+        sec
+        sbc #20
+        tay
+        jsr ReadPlayfieldRight   
+        rts
+
+.split
+        ; it's split if we're here
+	tya
+        sec
+        sbc #20
+        tay
+	stx var2
+        ldx #0
+        jsr ReadPlayfieldRight
+        ldx var2
+        ldy #19
+.left
+	; both points are in the left
+
+
 ReadPlayfieldLeft: subroutine
 	lda PF0Masks,y
         eor PF0Masks,x
@@ -242,7 +231,7 @@ ReadPlayfieldLeft: subroutine
         and PF2old
         ora PFLeft2
         sta PFLeft2
-        jmp CopyOld
+        rts
 
 ReadPlayfieldRight: subroutine
 	lda PF0Masks,y

@@ -6,8 +6,8 @@
 
 InstTypes:
         .hex ff 04 ff ff ff 04 06 ff 9b 02 01 ff ff 05 07 ff
-        .hex 80 04 ff ff ff 04 06 ff 01 05 ff ff ff 05 07 ff 91
-        .hex 04 ff ff 04 04 06 ff 93 02 01 ff 05 05 07 ff
+        .hex 80 04 ff ff ff 04 06 ff 01 05 ff ff ff 05 07 ff
+        .hex 91 04 ff ff 04 04 06 ff 93 02 01 ff 05 05 07 ff
         .hex 84 04 ff ff ff 04 06 ff 01 05 ff ff ff 05 07 ff
         .hex 8d 04 ff ff ff 04 06 ff 8b 02 01 ff 81 05 07 ff
         .hex 88 04 ff ff ff 04 06 ff 01 05 ff ff ff 05 07 ff

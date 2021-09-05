@@ -83,29 +83,50 @@ TMemoryAccess: subroutine
 
 	jsr MirrorAddr
         
+        lda OpCode
+        sta NESOpCode
+        
         ; check if causes interrupt
         ; reads don't interrupt
         lda #2
         bit InstType
         beq .nint
         
-        lda NESAddrHi
+        ; indexed writes don't interrupt
+        lda #1
+        bit OpCode
         bne .nint
         
+        ; only zero page interrupts
+        lda NESAddrHi
+        bne .nint
+
+
         lda NESAddrLo
         cmp #$2
         bne .nwsync
         ; it's a sync
         ; use NESAddrHi and Lo for the interrupt return address since we no longer need those variables
         lda #$10
-	bne .intdone
+	bne AccessInterrupt
+
 .nwsync
 	cmp #$d
         bcc .nint
         cmp #$10
-        bcc .nint
+        bcs .nint
+        
+        ldy #0
+.loop
+        lda NESOpCode,y
+        sta (TCachePtr),y
+        iny
+        cpy InstSize
+        bcc .loop
 	lda #$30
-.intdone
+        
+        
+AccessInterrupt
 	ora BlockNESPCHi
         sta BlockNESPCHi
         lda InstSize
@@ -117,6 +138,7 @@ TMemoryAccess: subroutine
         lda OpCode
         sta NESOpCode
         jmp InstructionDone
+
 
 TAlwaysInterrupt: subroutine ; why aren't we putting values in the table here? 
 			     ; instead of putting them in a var and then in table?
@@ -135,14 +157,16 @@ TAlwaysInterrupt: subroutine ; why aren't we putting values in the table here?
         lda (TROMPtr),y
         sta JINTREL,x
         
+	dey
         lda #2
-        bne ReturnNextOp
+	bne ReturnNextOp
     
 .ncond	lsr
 	bcc .nstack
         
         ; Stack interrupt
-        lda #1
+        ldy #0
+        lda #2
         bne ReturnNextOp
 
         
@@ -169,11 +193,12 @@ TAlwaysInterrupt: subroutine ; why aren't we putting values in the table here?
         
         sta JINTREL,x
  
+	ldy #0
         jmp EmitInterrupt
-
 
 .ntable
 	lda #1
+        ldy #0
 
 ; set the return address to right where it was left off
 ReturnNextOp:
@@ -185,9 +210,8 @@ ReturnNextOp:
         sta NESAddrHi
 
 EmitInterrupt: subroutine
-	ldy #0        
-        
-        lda #INS_JMP_ABS
+
+	lda #INS_JMP_ABS
         sta (TCachePtr),y
         iny
         

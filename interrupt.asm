@@ -64,8 +64,7 @@ InterruptHandler: subroutine
         bcs .leftpf
         jmp ILineSync
 .leftpf
-        jsr IPlayfieldChange
-        jmp InterruptDone
+        jmp IPlayfieldChange
 
 .jors	lsr
 	bcs .stack

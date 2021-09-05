@@ -121,7 +121,6 @@ CACHE_BLOCKS_END	= $7FF
 LEFT_PLAYFIELD_READ	= 38 ; at how many cycles after the start of the line should we read the first half
                              ; of the pf. if we don't reach this number, both halves are read after WSYNC
                              ; should generally be 32-44
-
 INS_PHP		= $08
 INS_JSR		= $20
 INS_PHA		= $48

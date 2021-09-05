@@ -54,7 +54,7 @@ ResumeProgram: subroutine
         lda JNESHI,x
         and #$7
         sta NESPC+1
-        lda JCYCLES
+        lda JCYCLES,x
         sta BlockCycles
         
 	lda IntP
