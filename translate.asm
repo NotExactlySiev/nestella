@@ -93,7 +93,7 @@ TMemoryAccess: subroutine
         beq .nint
         
         ; indexed writes don't interrupt
-        lda #1
+        lda #$10
         bit OpCode
         bne .nint
         

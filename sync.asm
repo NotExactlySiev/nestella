@@ -87,7 +87,6 @@ ILineSync: subroutine
         sta BGColor
         
         lda COLUPF
-        lda #$94 ; TEMPORARY!!!!!!!!!!!!!!!
         jsr ConvertColor
         sta PFColor
         
@@ -115,7 +114,7 @@ IPlayfieldChange: subroutine
 	lda LineCycles
         bmi CopyOld
         
-	; multiply by 3 and divide by 4
+	; multiply by 3 and divide by 4        
         asl
         clc
         adc LineCycles
@@ -124,7 +123,7 @@ IPlayfieldChange: subroutine
         lsr
         
         tay
-        
+
         
 	cpy LastDrawnPixel
         bcs .nwrap
