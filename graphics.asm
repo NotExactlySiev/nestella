@@ -139,48 +139,42 @@ ConvertColor: subroutine
         ror
         rol Playfield+9
         ror
-        rol
         rol Playfield+9
         ENDM
         
 	MAC UPDATE_TILES_RIGHT_MIRRORED
-        lda PFRight0
-        lsr
-        lsr
-        lsr
-        lsr
-        ror
+        lda PFRight2
+        rol
         rol Playfield+10
-        ror
+        rol
         rol Playfield+10
         
-        ror
+        rol
         rol Playfield+11
-        ror
+        rol
         rol Playfield+11
+        
+        rol
+        rol Playfield+12
+        rol
+        rol Playfield+12
+        
+        rol
+        rol Playfield+13
+        rol
+        rol Playfield+13
         
         lda PFRight1
-        rol
-        rol Playfield+12
-        rol
-        rol Playfield+12
-        
-        rol
-        rol Playfield+13
-        rol
-        rol Playfield+13
-        
-        rol
+        ror
         rol Playfield+14
-        rol
+        ror
         rol Playfield+14
         
-        rol
+        ror
         rol Playfield+15
-        rol
+        ror
         rol Playfield+15
         
-        lda PFRight2
         ror
         rol Playfield+16
         ror
@@ -191,16 +185,18 @@ ConvertColor: subroutine
         ror
         rol Playfield+17
         
-        ror
+        lda PFRight0
+        rol
         rol Playfield+18
-        ror
+        rol
         rol Playfield+18
         
-        ror
+        rol
         rol Playfield+19
-        ror
+        rol
         rol Playfield+19
         ENDM
+        
         
 	MAC UPDATE_TILES_RIGHT
         lda PFRight0
@@ -209,55 +205,55 @@ ConvertColor: subroutine
         lsr
         lsr
         ror
-        rol Playfield+19
+        rol Playfield+10
         ror
-        rol Playfield+19
+        rol Playfield+10
         
         ror
-        rol Playfield+18
+        rol Playfield+11
         ror
-        rol Playfield+18
+        rol Playfield+11
         
         lda PFRight1
         rol
-        rol Playfield+17
+        rol Playfield+12
         rol
-        rol Playfield+17
+        rol Playfield+12
         
         rol
-        rol Playfield+16
+        rol Playfield+13
         rol
-        rol Playfield+16
-        
-        rol
-        rol Playfield+15
-        rol
-        rol Playfield+15
+        rol Playfield+13
         
         rol
         rol Playfield+14
         rol
         rol Playfield+14
+        
+        rol
+        rol Playfield+15
+        rol
+        rol Playfield+15
         
         lda PFRight2
         ror
-        rol Playfield+13
+        rol Playfield+16
         ror
-        rol Playfield+13
+        rol Playfield+16
         
         ror
-        rol Playfield+12
+        rol Playfield+17
         ror
-        rol Playfield+12
+        rol Playfield+17
         
         ror
-        rol Playfield+11
+        rol Playfield+18
         ror
-        rol Playfield+11
+        rol Playfield+18
         
         ror
-        rol Playfield+10
+        rol Playfield+19
         ror
-        rol Playfield+10
+        rol Playfield+19
         ENDM
         

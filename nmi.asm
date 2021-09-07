@@ -45,6 +45,13 @@ NMIHandler: subroutine
         DRAW_BUFFER 4
         DRAW_BUFFER 5
         
+        ldx #$20
+        stx PPU_ADDR
+        inx
+        stx PPU_ADDR
+        lda $201
+        sta PPU_DATA
+        
         lda #0
         sta PPU_ADDR
         sta PPU_ADDR

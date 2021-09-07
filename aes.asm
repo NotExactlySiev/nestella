@@ -118,9 +118,7 @@ CodeBlocks	= $500
 
 CACHE_MAX_BLOCKS	= $40
 CACHE_BLOCKS_END	= $7FF
-LEFT_PLAYFIELD_READ	= 38 ; at how many cycles after the start of the line should we read the first half
-                             ; of the pf. if we don't reach this number, both halves are read after WSYNC
-                             ; should generally be 32-44
+
 INS_PHP		= $08
 INS_JSR		= $20
 INS_PHA		= $48
@@ -270,7 +268,7 @@ Attributes:
 
 	org $effa
         ; Atari Vectors
-        .hex 60 cd 00 b0 00 b0
+        .hex ff ff 00 f0 a2 ff
 
 	org $f000
         incbin "rom.a26"

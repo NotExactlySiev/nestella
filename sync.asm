@@ -162,7 +162,7 @@ FinishLine: subroutine
         
         UPDATE_TILES_LEFT
         ror CTRLPF
-        bcc .nmirror
+        bcs .nmirror	; for some reason this is backwards? 0 is mirrored 1 is normal
         UPDATE_TILES_RIGHT_MIRRORED
         jmp .linedone
 .nmirror
