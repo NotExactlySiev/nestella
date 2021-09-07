@@ -93,16 +93,16 @@ PFRight1	= $1C7
 PFRight2	= $1C8
 LineCycles	= $1C9 ; how many cycles since the scanline started
 LastDrawnPixel	= $1CA
-
+FreeSprite	= $1CB
 
 ;;;---
-ATRPC		= $2D1
-IntS		= $2D3
-NESPC		= $2D5
-BlockIndex	= $2D7
+ATRPC		= $2F1
+IntS		= $2F3
+NESPC		= $2F5
+BlockIndex	= $2F7
 
-CacheFree	= $2D9
-CacheOldest	= $2DB
+CacheFree	= $2F9
+CacheOldest	= $2FB
 
 ; jumps table, segmented into 4 parts for low/high bytes
 JATRLO	= $300
@@ -141,6 +141,9 @@ Start:
 	NES_INIT
 	jsr ClearRAM
     
+	lda #0
+        sta OAM_ADDR
+    
 	lda #<ROM_RESET
         sta ATRPC
         lda #>ROM_RESET
@@ -173,6 +176,16 @@ Start:
 	lda #-22
         sta LineCycles
 
+	; temporary static sprite palette
+	lda #$3f
+        sta PPU_ADDR
+        lda #$11
+        sta PPU_ADDR
+        lda #$06
+        sta PPU_DATA
+	sta PPU_DATA
+        sta PPU_DATA
+
         ldy #5
         sty PaletteCounter
 SetColors        
@@ -204,9 +217,9 @@ SetColors
         sta PPU_SCROLL
         
         
-        lda #MASK_BG
+        lda #MASK_BG | MASK_SPR
         sta PPU_MASK	; enable rendering
-        lda #CTRL_NMI
+        lda #CTRL_NMI | CTRL_SPR_1000
         sta PPU_CTRL	; enable NMI          
         
         

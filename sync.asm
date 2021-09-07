@@ -6,6 +6,8 @@ ILineSync: subroutine
         bit VSYNC
         beq .nvsync
         inc $201
+        lda #$ec
+        sta FreeSprite
         lda #-37
         sta ScanLine
         lda #3 ; sets the counter so the colors for each section are read halfway through
@@ -23,6 +25,52 @@ ILineSync: subroutine
         jmp InterruptDone 
 .screen
         ; visible scanlines 0-191
+        ldx FreeSprite
+        
+        lda GRP0
+        beq .nsprite0
+        
+        
+        sta $201,x
+        tya
+        clc
+        adc #39
+        sta $200,x
+        lda #70
+        
+        sta $203,x
+        
+        dex
+        dex
+        dex
+        dex
+        bne .nwrap
+        ldx #$ec
+.nwrap
+
+.nsprite0
+        lda GRP1
+        beq .nsprite1
+        
+        sta $201,x
+        tya
+        clc
+        adc #39
+        sta $200,x
+        lda #120
+        
+        sta $203,x
+        
+        dex
+        dex
+        dex
+        dex
+        bne .nwrap1
+        ldx #$ec
+.nwrap1
+.nsprite1        
+        stx FreeSprite
+        
         tya
         lsr
         bcs .odd	; only odd scanlines are processed and drawn
@@ -161,8 +209,9 @@ FinishLine: subroutine
         sta LastDrawnPixel
         
         UPDATE_TILES_LEFT
-        ror CTRLPF
-        bcs .nmirror	; for some reason this is backwards? 0 is mirrored 1 is normal
+        lda CTRLPF
+        ror
+        bcc .nmirror
         UPDATE_TILES_RIGHT_MIRRORED
         jmp .linedone
 .nmirror

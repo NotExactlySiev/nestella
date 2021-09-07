@@ -52,6 +52,9 @@ NMIHandler: subroutine
         lda $201
         sta PPU_DATA
         
+        lda #$2
+        sta OAM_DMA
+        
         lda #0
         sta PPU_ADDR
         sta PPU_ADDR
@@ -59,7 +62,7 @@ NMIHandler: subroutine
         
         jsr ConvertInputs
         
-        lda #$80
+        lda #CTRL_NMI | CTRL_SPR_1000
         ldx PPU_STATUS
         sta PPU_CTRL
         
