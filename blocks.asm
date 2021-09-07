@@ -74,7 +74,7 @@ AppendInstruction
         cmp #$7
         bne .nrollover
         lda TCachePtr
-        cmp #$f8
+        cmp #$f2
         bcc .nrollover
         
         ldy #0
