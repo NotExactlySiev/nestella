@@ -13,7 +13,7 @@ MirrorAddr: subroutine
         bne .nvectors
         cpx #$fa
         bcc .nvectors
-        lda #$ef    
+        lda #$ef
 .nvectors
         tay
         bne .mirrordone
@@ -54,10 +54,14 @@ MirrorAddr: subroutine
         and #$7
 	
         ; and add 8 if is a write instruction
-        ror InstType
-        bcc .nwrite
-        ora #$8
-.nwrite
+	sta var0
+        
+        lda InstType
+        and #2
+	asl
+        asl
+        ora var0
+        
 	tax
         
 .mirrordone
@@ -99,7 +103,7 @@ TMemoryAccess: subroutine
         
         ; only zero page interrupts
         lda NESAddrHi
-        bne .nint
+        bne .io
 
 
         lda NESAddrLo
@@ -124,8 +128,23 @@ TMemoryAccess: subroutine
         cpy InstSize
         bcc .loop
 	lda #$30
-        
-        
+        bne AccessInterrupt
+
+
+.io
+	lda NESAddrLo
+	cmp #$10
+        bcs .nint
+        tax
+        lda Timer-$c,x
+        cmp #$10
+        bcs .nint
+        ; if it's bigger than 16 it's not an interrupt
+        ; if it is smaller, then we have our timer interval
+        ldx BlockIndex
+        sta JINTREL,x
+        lda #$50
+
 AccessInterrupt
 	ora BlockNESPCHi
         sta BlockNESPCHi
@@ -133,12 +152,13 @@ AccessInterrupt
         bne ReturnNextOp
 
 .nint
+
 	lda InstSize
         sta NESInstSize
         lda OpCode
-        sta NESOpCode
+	sta NESOpCode
         jmp InstructionDone
-
+Timer	.byte $0, $3, $6, $a ; i don't know if this is good or fucking stupid but i'm doing it
 
 TAlwaysInterrupt: subroutine ; why aren't we putting values in the table here? 
 			     ; instead of putting them in a var and then in table?
@@ -166,11 +186,11 @@ TAlwaysInterrupt: subroutine ; why aren't we putting values in the table here?
         
         ; Stack interrupt
         ldy #0
-        lda #2
+        lda #1
         bne ReturnNextOp
 
         
-.nstack 
+.nstack
 	; Jump interrupt
 	lsr
         bcs .ntable

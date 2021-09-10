@@ -11,9 +11,18 @@ InterruptHandler: subroutine
 	ldy BlockIndex
 
 	lda JCYCLES,y
+        tax
         clc
         adc LineCycles
         sta LineCycles
+        
+        txa
+        clc
+        adc TimerCycles
+        sta TimerCycles
+        lda TimerCycles+1
+        adc #0
+        sta TimerCycles+1
         
         lda JINTLO,y
         sta var0
@@ -63,7 +72,11 @@ InterruptHandler: subroutine
 	; Sync Interrupt
         lsr
         bcs .leftpf
+        lsr
+        bcs .timer
         jmp ILineSync
+.timer
+	jmp ITimer
 .leftpf
         jmp IPlayfieldChange
 

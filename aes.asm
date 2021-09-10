@@ -95,6 +95,9 @@ LineCycles	= $1C9 ; how many cycles since the scanline started
 LastDrawnPixel	= $1CA
 FreeSprite	= $1CB
 
+TimerCycles	= $1CC ; 16 bit value
+TimerInterval	= $1CE
+
 ;;;---
 ATRPC		= $2F1
 IntS		= $2F3
@@ -175,6 +178,13 @@ Start:
 
 	lda #-22
         sta LineCycles
+        
+        lda #$0
+        sta TimerCycles
+        lda #$10
+        sta TimerInterval
+        lda #$d
+        sta $104
 
 	; temporary static sprite palette
 	lda #$3f
@@ -234,6 +244,7 @@ Attributes:
 ;;;;; COMMON SUBROUTINES
 
 
+	include "timer.asm"
 	include "graphics.asm"
 	include "interrupt.asm"
 	include "blocks.asm"
