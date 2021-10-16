@@ -5,7 +5,14 @@ ILineSync: subroutine
 	lda #2
         bit VSYNC
         beq .nvsync
-        inc $201
+        
+        inc $201 ; frame counter
+        
+        lda $202 ; how many frames did this one frame take?
+        sta $203
+        lda #0
+        sta $202
+        
         lda #$ec
         sta FreeSprite
         lda #-37

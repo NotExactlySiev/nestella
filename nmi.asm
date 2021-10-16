@@ -8,13 +8,9 @@ NMIHandler: subroutine
         lda #00
         sta PPU_CTRL
         
+        inc $202
+        
         ; count how many scanlines in each nes frame
-        lda ScanLine
-        sec
-        sbc $202
-        sta $203
-        lda ScanLine
-        sta $202
                         
         ldx UpdateColor
         beq .ncolor
@@ -50,6 +46,10 @@ NMIHandler: subroutine
         inx
         stx PPU_ADDR
         lda $201
+        sta PPU_DATA
+        lda #0
+        sta PPU_DATA
+        lda $203
         sta PPU_DATA
         
         lda #$2
