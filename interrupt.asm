@@ -11,19 +11,64 @@ InterruptHandler: subroutine
 	ldy BlockIndex
 
 	lda JCYCLES,y
+        sta BlockCycles
         tax
         clc
         adc LineCycles
         sta LineCycles
+
+	
+        
+        
+
+	bit TimerInterval
+        bne .biginterval
+        ; if it's TIM1T just subtract the cycles from the counter
+
+	lda TimerCounter
+        beq .timerdone
+        
+        sec
+        sbc BlockCycles
+        bcs .ndone
+        lda #0
+.ndone
+	sta TimerCounter
+	jmp .timerdone
+         
+.biginterval
+	; if it's a bigger interval, increment the 10 bit cycle counter
+        ; and compare hi byte to the interval. decrese timer if needed
+        ; and reset the cycle counter
+	lda TimerCycles
+        clc
+        adc BlockCycles
+        sta TimerCycles
+        
+        cmp #$8
+        bcc .timerdone
+        tax
+        and #$7
+        sta TimerCycles
         
         txa
+        lsr
+        lsr
+        lsr
         clc
-        adc TimerCycles
-        sta TimerCycles
-        lda TimerCycles+1
-        adc #0
+        adc TimerCycles+1
+
         sta TimerCycles+1
         
+        sec
+        sbc TimerInterval
+        bcc .timerdone
+        
+        sta TimerCycles+1
+        dec TimerCounter    
+        
+.timerdone
+
         lda JINTLO,y
         sta var0
         lda JINTHI,y

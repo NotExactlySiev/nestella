@@ -136,14 +136,17 @@ TMemoryAccess: subroutine
 	cmp #$10
         bcs .nint
         tax
-        lda Timer-$c,x
+        lda Timer-$c,x ; get the timer interval from table
         cmp #$10
         bcs .nint
         ; if it's bigger than 16 it's not an interrupt
         ; if it is smaller, then we have our timer interval
         ldx BlockIndex
         sta JINTREL,x
+        ldy #0
         lda #$50
+        
+        
 
 AccessInterrupt
 	ora BlockNESPCHi
@@ -158,7 +161,7 @@ AccessInterrupt
         lda OpCode
 	sta NESOpCode
         jmp InstructionDone
-Timer	.byte $0, $3, $6, $a ; i don't know if this is good or fucking stupid but i'm doing it
+Timer	.byte $0, $1, $8, $80 ; i don't know if this is good or fucking stupid but i'm doing it
 
 TAlwaysInterrupt: subroutine ; why aren't we putting values in the table here? 
 			     ; instead of putting them in a var and then in table?

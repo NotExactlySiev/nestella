@@ -22,7 +22,7 @@ ILineSync: subroutine
         cpy #192
         bcc .screen
         inc ScanLine
-        jmp InterruptDone 
+        jmp InterruptDone
 .screen
         ; visible scanlines 0-191
         ldx FreeSprite

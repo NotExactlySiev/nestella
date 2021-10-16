@@ -4,6 +4,8 @@
 
 ;;;;; VARIABLES
 
+
+
 ; 40 - 45 atari registers
 
 var0		= $46 ; used by interrupt handler!!!!!
@@ -95,8 +97,9 @@ LineCycles	= $1C9 ; how many cycles since the scanline started
 LastDrawnPixel	= $1CA
 FreeSprite	= $1CB
 
-TimerCycles	= $1CC ; 16 bit value
-TimerInterval	= $1CE
+TimerCycles	= $1CC ; 10 bit value, stored a bit weird
+TimerCounter	= $1CE
+TimerInterval	= $1CF
 
 ;;;---
 ATRPC		= $2F1
@@ -107,7 +110,7 @@ BlockIndex	= $2F7
 CacheFree	= $2F9
 CacheOldest	= $2FB
 
-; jumps table, segmented into 4 parts for low/high bytes
+; cache table
 JATRLO	= $300
 JATRHI	= $340
 JNESLO	= $380
@@ -179,10 +182,10 @@ Start:
 	lda #-22
         sta LineCycles
         
-        lda #$0
+        lda #0
         sta TimerCycles
-        lda #$10
-        sta TimerInterval
+        lda #0
+        sta TimerCounter
         lda #$d
         sta $104
 
@@ -258,9 +261,9 @@ Attributes:
 
 
 	org $e000
-
 	include "data.asm"
 	include "nesppu.dasm"
+
 
 	.org $e300
 	bpl .branched
