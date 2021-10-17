@@ -43,7 +43,7 @@ ILineSync: subroutine
         clc
         adc #39
         sta $200,x
-        lda #70
+        lda Sprite0H
         
         sta $203,x
         
@@ -64,7 +64,7 @@ ILineSync: subroutine
         clc
         adc #39
         sta $200,x
-        lda #120
+        lda Sprite1H
         
         sta $203,x
         
@@ -105,27 +105,27 @@ ILineSync: subroutine
         
 .n0	bit DrawBuffer1
         bne .n1
-        FILL_BUFFER 1
+        ;FILL_BUFFER 1
         jmp .buffdone
         
 .n1	bit DrawBuffer2
         bne .n2
-        FILL_BUFFER 2
+        ;FILL_BUFFER 2
         jmp .buffdone
 .n2
 	bit DrawBuffer3
         bne .n3
-	FILL_BUFFER 3
+	;FILL_BUFFER 3
         jmp .buffdone
 .n3	
 	bit DrawBuffer4
         bne .n4
-	FILL_BUFFER 4
+	;FILL_BUFFER 4
         jmp .buffdone
 .n4	
 	bit DrawBuffer5
         bne .n5
-	FILL_BUFFER 5
+	;FILL_BUFFER 5
         beq .buffdone
 .n5	
 	inc $210

@@ -116,14 +116,18 @@ InterruptHandler: subroutine
 .sync
 	; Sync Interrupt
         lsr
-        bcs .leftpf
+        bcs .pors
         lsr
         bcs .timer
         jmp ILineSync
 .timer
 	jmp ITimer
-.leftpf
+.pors
+	lsr
+        bcs .sprite
         jmp IPlayfieldChange
+.sprite
+	jmp ISpriteSync
 
 .jors	lsr
 	bcs .stack

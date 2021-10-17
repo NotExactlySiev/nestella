@@ -118,8 +118,8 @@ TMemoryAccess: subroutine
 	cmp #$d
         bcc .nint
         cmp #$10
-        bcs .nint
-        
+        bcs .npf
+        ; playfield update
         ldy #0
 .loop
         lda NESOpCode,y
@@ -128,6 +128,17 @@ TMemoryAccess: subroutine
         cpy InstSize
         bcc .loop
 	lda #$30
+        bne AccessInterrupt
+
+.npf
+	cmp #$15
+        bcs .nint
+        ; sprite reset
+        and #$f
+        ldx BlockIndex
+        sta JINTREL,x
+        ldy #0
+        lda #$70
         bne AccessInterrupt
 
 

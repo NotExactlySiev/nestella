@@ -247,6 +247,7 @@ Attributes:
 ;;;;; COMMON SUBROUTINES
 
 
+	include "sprite.asm"
 	include "timer.asm"
 	include "graphics.asm"
 	include "interrupt.asm"
