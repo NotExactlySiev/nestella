@@ -1,17 +1,15 @@
 SetNESPC: subroutine
-	ldx #$40
+        ldy ATRPC
+	ldx #CACHE_BLOCKS
 FindJump:
 	dex
         bmi FreeCache
-        lda JATRHI,x
-        beq .trans
 .ntrans 
-        
-	lda JATRLO,x
-        cmp ATRPC
+	tya
+        cmp JATRLO,x
         bne FindJump
-        lda JATRHI,x
-        cmp ATRPC+1
+        lda ATRPC+1
+        cmp JATRHI,x
         bne FindJump
         ; we found the jump addr!
         stx BlockIndex
@@ -22,7 +20,7 @@ FreeCache
         txa
         dex
         bpl .nover
-        ldx #$3F
+        ldx #CACHE_BLOCKS-1
 .nover
 	stx CacheOldest
         tax

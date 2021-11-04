@@ -122,7 +122,7 @@ JINTREL	= $4C0
 
 CodeBlocks	= $500
 
-CACHE_MAX_BLOCKS	= $40
+CACHE_BLOCKS	= $8
 CACHE_BLOCKS_END	= $7FF
 
 INS_PHP		= $08
@@ -156,7 +156,7 @@ Start:
         sta ATRPC+1
         
         ; initialize the cache NES values to maximum, so they immidiately end cache invalidation the first time
-        ldx #CACHE_MAX_BLOCKS-1
+        ldx #CACHE_BLOCKS-1
 .loop
         lda #$ff
         sta JNESHI,x
@@ -168,7 +168,7 @@ Start:
         sta CacheFree
         lda #>CodeBlocks
         sta CacheFree+1
-	lda #CACHE_MAX_BLOCKS-1
+	lda #CACHE_BLOCKS-1
         sta CacheOldest
 
 	lda #<ROM_RESET

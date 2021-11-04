@@ -102,6 +102,8 @@ TranslationDone
         sta JNESHI,x
 
 InvalidateCache
+	jmp .cachedone ; TEMPORARY!!!!
+
 	; compare every cache entry and remove them if they are overwritten
         ; var0 and var1 hold the pointer to the end of current block
         and #$7	; this is inefficient!!!!
@@ -114,7 +116,7 @@ InvalidateCache
 .method1
         	dey
                 bpl .nend
-		ldy #CACHE_MAX_BLOCKS-1
+		ldy #CACHE_BLOCKS-1
 .nend		; is the start of the block before the end of the current block OR after the start?
 		lda JNESHI,y
                 and #$7
@@ -138,7 +140,7 @@ InvalidateCache
 .method2
 		dey
                 bpl .nend2
-		ldy #CACHE_MAX_BLOCKS-1
+		ldy #CACHE_BLOCKS-1
 .nend2		; is the start of the block before the end of the current block AND after the start?
 		lda JNESHI,y
                 and #$7
