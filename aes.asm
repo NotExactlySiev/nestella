@@ -114,7 +114,7 @@ CacheOldest	= $2FB
 CacheTable	= $300
 CodeBlocks	= $400
 
-CACHE_BLOCKS		= 34
+CACHE_BLOCKS		= 32
 CACHE_BLOCKS_END	= $7FF
 
 JATARI	= CacheTable + CACHE_BLOCKS*0 ; lll1 hhhh -> 1111 hhhh llli iiii (i is row index)

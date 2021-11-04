@@ -70,7 +70,9 @@ MirrorAddr: subroutine
 
 	rts
 
-
+; TODO: now that we have a full 8 bit number for the interrupt type, this could be redone to 
+; be more straight forward and use the entire byte instead of only the first 5 bits
+	
 TMemoryAccess: subroutine
 	lda InstType
         and #$1
@@ -111,7 +113,7 @@ TMemoryAccess: subroutine
         bne .nwsync
         ; it's a sync
         ; use NESAddrHi and Lo for the interrupt return address since we no longer need those variables
-        lda #$10
+        lda #$2
 	bne AccessInterrupt
 
 .nwsync
@@ -127,7 +129,7 @@ TMemoryAccess: subroutine
         iny
         cpy InstSize
         bcc .loop
-	lda #$30
+	lda #$6
         bne AccessInterrupt
 
 .npf
@@ -138,7 +140,7 @@ TMemoryAccess: subroutine
         ldx BlockIndex
         sta JINTPAR,x
         ldy #0
-        lda #$70
+        lda #$e
         bne AccessInterrupt
 
 
@@ -155,13 +157,13 @@ TMemoryAccess: subroutine
         ldx BlockIndex
         sta JINTPAR,x
         ldy #0
-        lda #$50
+        lda #$a
         
         
 
 AccessInterrupt
-	ora BlockNESPCHi
-        sta BlockNESPCHi
+	ldx BlockIndex
+        sta JINT,x
         lda InstSize
         bne ReturnNextOp
 
@@ -176,13 +178,10 @@ Timer	.byte $0, $1, $8, $80 ; i don't know if this is good or fucking stupid but
 
 TAlwaysInterrupt: subroutine ; why aren't we putting values in the table here? 
 			     ; instead of putting them in a var and then in table?
-	lda InstType
-        asl
-        asl
-        asl
-        ora BlockNESPCHi
-        sta BlockNESPCHi
+	ldx BlockIndex
         lda InstType
+        and #$1f
+        sta JINT,x
         lsr
         bcs .ncond
         ; Conditional interrupt

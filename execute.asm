@@ -33,6 +33,8 @@ FindBlock: subroutine
         cmp ATRPC+1
         bne Overwrite
 
+	nop
+        
 ResumeProgram       
 	lda IntP
         pha
