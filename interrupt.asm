@@ -69,15 +69,12 @@ InterruptHandler: subroutine
         
 .timerdone
 
-        lda JINTLO,y
+        lda JRETLO,y
         sta var0
-        lda JINTHI,y
+        lda JRETHI,y
         sta var1
         
-        lda JNESHI,y
-        lsr
-        lsr
-        lsr
+        lda JINT,y
         sta IntrID
         lsr
         bcs .jors
@@ -93,7 +90,7 @@ InterruptHandler: subroutine
         lda IntP
         pha
         lda #0
-        ldx JINTREL,y
+        ldx JINTPAR,y
         plp
         jsr JumpToBranchCheck
         
@@ -159,7 +156,7 @@ InterruptHandler: subroutine
         ; -- JSR
         lda ATRPC
         clc
-        adc JINTREL,y
+        adc JINTPAR,y
         sta ATRPC
         lda ATRPC+1
         adc #0
@@ -217,7 +214,7 @@ InterruptDone
         lda var1
         sta ATRPC+1
 
-        jmp SetNESPC
+        jmp FindBlock
         
         
         

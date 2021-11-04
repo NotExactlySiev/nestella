@@ -136,7 +136,7 @@ TMemoryAccess: subroutine
         ; sprite reset
         and #$f
         ldx BlockIndex
-        sta JINTREL,x
+        sta JINTPAR,x
         ldy #0
         lda #$70
         bne AccessInterrupt
@@ -153,7 +153,7 @@ TMemoryAccess: subroutine
         ; if it's bigger than 16 it's not an interrupt
         ; if it is smaller, then we have our timer interval
         ldx BlockIndex
-        sta JINTREL,x
+        sta JINTPAR,x
         ldy #0
         lda #$50
         
@@ -189,7 +189,7 @@ TAlwaysInterrupt: subroutine ; why aren't we putting values in the table here?
         ldx BlockIndex
         ldy #1
         lda (TROMPtr),y
-        sta JINTREL,x
+        sta JINTPAR,x
         
 	dey
         lda #2
@@ -225,7 +225,7 @@ TAlwaysInterrupt: subroutine ; why aren't we putting values in the table here?
         adc #3
         ldx BlockIndex
         
-        sta JINTREL,x
+        sta JINTPAR,x
  
 	ldy #0
         jmp EmitInterrupt

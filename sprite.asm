@@ -1,5 +1,5 @@
 ISpriteSync: subroutine
-	ldx JINTREL,y
+	ldx JINTPAR,y
         
         lda LineCycles
         asl

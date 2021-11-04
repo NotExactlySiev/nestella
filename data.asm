@@ -41,6 +41,13 @@ Cycles:
         .hex 02 06 ff ff 03 03 05 ff 02 02 02 ff 04 04 06 ff
         .hex 02 05 ff ff ff 04 06 ff 02 04 ff ff ff 04 07 ff
 
+Identity:
+TMP	SET 0
+	REPEAT 256
+        .byte TMP
+TMP	SET TMP+1
+        REPEND
+
 InstSizes:
 	.byte 1, 2, 1, 3, 2, 2, 3, 3, 2
 

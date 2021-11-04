@@ -111,19 +111,18 @@ CacheFree	= $2F9
 CacheOldest	= $2FB
 
 ; cache table
-JATRLO	= $300
-JATRHI	= $340
-JNESLO	= $380
-JNESHI	= $3C0
-JCYCLES	= $400
-JINTLO	= $440
-JINTHI	= $480
-JINTREL	= $4C0
+CacheTable	= $300
+CodeBlocks	= $400
 
-CodeBlocks	= $500
-
-CACHE_BLOCKS	= $8
+CACHE_BLOCKS		= 34
 CACHE_BLOCKS_END	= $7FF
+
+JATARI	= CacheTable + CACHE_BLOCKS*0 ; lll1 hhhh -> 1111 hhhh llli iiii (i is row index)
+JINT	= CacheTable + CACHE_BLOCKS*1 ; interrupt type
+JCYCLES	= CacheTable + CACHE_BLOCKS*2 ; code block cycle count
+JRETLO	= CacheTable + CACHE_BLOCKS*3 ; where to return to after the interrupt
+JRETHI	= CacheTable + CACHE_BLOCKS*4
+JINTPAR	= CacheTable + CACHE_BLOCKS*5 ; interrupt parameter if needed
 
 INS_PHP		= $08
 INS_JSR		= $20
@@ -154,15 +153,6 @@ Start:
         sta ATRPC
         lda #>ROM_RESET
         sta ATRPC+1
-        
-        ; initialize the cache NES values to maximum, so they immidiately end cache invalidation the first time
-        ldx #CACHE_BLOCKS-1
-.loop
-        lda #$ff
-        sta JNESHI,x
-        sta JNESLO,x
-        dex
-        bpl .loop
         
         lda #<CodeBlocks
         sta CacheFree
@@ -237,7 +227,7 @@ SetColors
         
         
         
-	jmp SetNESPC
+	jmp FindBlock
 
 Attributes:
 	.byte $00, $50, $55, $AA, $FA, $FF
@@ -261,7 +251,7 @@ Attributes:
 	include "nmi.asm"
 
 
-	org $e000
+	org $df00
 	include "data.asm"
 	include "nesppu.dasm"
 

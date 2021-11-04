@@ -1,58 +1,39 @@
-SetNESPC: subroutine
-        ldy ATRPC
-	ldx #CACHE_BLOCKS
-FindJump:
-	dex
-        bmi FreeCache
-.ntrans 
-	tya
-        cmp JATRLO,x
-        bne FindJump
-        lda ATRPC+1
-        cmp JATRHI,x
-        bne FindJump
-        ; we found the jump addr!
-        stx BlockIndex
-        jmp ResumeProgram
+	MAC SET_NESPC ; is this too slow or am i overthinking things? we don't need a LUT for this, right?
+          txa
+          asl
+          asl
+          asl
+          asl
+          asl
+          sta NESPC
+          txa
+          lsr
+          lsr
+          lsr
+          ora #$04
+          sta NESPC+1
+        ENDM
 
-FreeCache
-	ldx CacheOldest
-        txa
-        dex
-        bpl .nover
-        ldx #CACHE_BLOCKS-1
-.nover
-	stx CacheOldest
+FindBlock: subroutine
+        lda ATRPC
+        and #$1f
         tax
-.trans
-	; if the block wasn't cached prepare for translation
-	lda ATRPC
-        sta TROMPtr
-        sta JATRLO,x
-        
-        lda ATRPC+1
-        sta TROMPtr+1
-        sta JATRHI,x
-	
-        lda CacheFree
-        sta TCachePtr
-        sta JNESLO,x
-        lda CacheFree+1
-        sta TCachePtr+1
-        sta BlockNESPCHi
         stx BlockIndex
         
-        ; block is addressed in the table. now we make the block	
-        jmp CreateBlock
-
-ResumeProgram: subroutine
-	ldx BlockIndex
-        lda JNESLO,x
-        sta NESPC
-        lda JNESHI,x
-        and #$7
-        sta NESPC+1
+        SET_NESPC
         
+        lda JATARI,x
+        tay
+        and #$e0
+        ora Identity,x
+        cmp ATRPC
+        bne Overwrite
+        tya
+        ora #$e0
+        cmp ATRPC+1
+        bne Overwrite
+
+ResumeProgram       
 	lda IntP
         pha
         lda IntA        
@@ -60,3 +41,20 @@ ResumeProgram: subroutine
         ldy IntY
         plp
         jmp (NESPC)
+
+Overwrite
+	; if the block wasn't cached prepare for translation
+	lda ATRPC
+        sta TROMPtr
+        and #$e0
+        tay
+        
+        lda ATRPC+1
+        sta TROMPtr+1
+        and #$1f
+        ora Identity,y
+        sta JATARI,x
+	        
+        jmp CreateBlock
+
+

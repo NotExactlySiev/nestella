@@ -1,4 +1,13 @@
 CreateBlock: subroutine
+	lda NESPC
+        sta TCachePtr
+        lda NESPC+1
+        sta TCachePtr+1
+        ; maybe we can just store the index, if the blocks are not gonna be larger than 256 bytes
+        ; this is kinda slow and not needed now that we can calculate the NESPC whenever we want
+        ; actually on second thought that would make rolling over back to the start of the blocks hell
+        ; but there has to be a better way to do all of this
+
 	lda #0
         sta BlockCycles
         sta RollOver
@@ -98,92 +107,21 @@ AppendInstruction
 
 TranslationDone
 	ldx BlockIndex
-        lda BlockNESPCHi
-        sta JNESHI,x
 
 InvalidateCache
-	jmp .cachedone ; TEMPORARY!!!!
-
-	; compare every cache entry and remove them if they are overwritten
-        ; var0 and var1 hold the pointer to the end of current block
-        and #$7	; this is inefficient!!!!
-        sta var0 ; store NESHI of the current block and the block that's being checked in v0 and v1 if needed
-        
-	; we need two different algorithms for rolled over and non rolled over blocks
-        ldy BlockIndex
-        lda RollOver
-	beq .method2
-.method1
-        	dey
-                bpl .nend
-		ldy #CACHE_BLOCKS-1
-.nend		; is the start of the block before the end of the current block OR after the start?
-		lda JNESHI,y
-                and #$7
-        	cmp var0
-                bcc .check2
-                bne .isin
-		lda JNESLO,y
-                cmp JNESLO,x
-                bcs .isin
-.check2
-        	lda JNESHI,y
-                and #$7
-                cmp TCachePtr+1
-                bcc .isin
-                bne .cachedone
-                lda JNESLO,y
-                cmp TCachePtr
-                bcc .isin
-                bcs .cachedone
-                
-.method2
-		dey
-                bpl .nend2
-		ldy #CACHE_BLOCKS-1
-.nend2		; is the start of the block before the end of the current block AND after the start?
-		lda JNESHI,y
-                and #$7
-                cmp var0
-                bcc .cachedone
-                bne .check4
-                lda JNESLO,y
-                cmp JNESLO,x
-                bcc .method2
-                beq .cachedone ; we shouldn't be here
-.check4
-		lda JNESHI,y
-                and #$7
-		cmp TCachePtr+1
-                bcc .isin
-                bne .cachedone
-                lda JNESLO,y
-                cmp TCachePtr
-                bcs .cachedone
-.isin
-	lda #0
-        sta JATRHI,y
-        bit RollOver
-        beq .method2
-        bne .method1
-
-.cachedone
-
+	; TODO: if the generated code block is bigger than 34 bytes, the next block(s) are invalid
+        ; (invalid blocks have bit 4 in their JATARI set to 0)
 
 UpdateTable
-	lda TCachePtr
-        sta CacheFree
-        lda TCachePtr+1
-        sta CacheFree+1
-
 	; complete the table entry
-        ldx BlockIndex
         lda NESAddrHi
-        sta JINTHI,x
+        sta JRETHI,x
         lda NESAddrLo
-        sta JINTLO,x
+        sta JRETLO,x
         lda BlockCycles
         sta JCYCLES,x
+
+	
 
 	; and then execute it
         jmp ResumeProgram

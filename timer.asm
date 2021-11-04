@@ -5,7 +5,7 @@ ITimer: subroutine
         stx TimerCounter
 
 	ldx BlockIndex
-        lda JINTREL,x
+        lda JINTPAR,x
         sta TimerInterval
         
 	jmp InterruptDone
