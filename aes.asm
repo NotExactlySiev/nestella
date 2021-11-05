@@ -78,30 +78,31 @@ Playfield	= $115 ; - $128
 ; six 24 byte buffers should be enough jesus christ
 DrawBuffer0	= $130
 DrawBuffer1	= $148
-DrawBuffer2	= $160
-DrawBuffer3	= $178
-DrawBuffer4	= $190
-DrawBuffer5	= $1A8 ; - $1BF
 
-PF0old		= $1C0
-PF1old		= $1C1
-PF2old		= $1C2
+PF0old		= $160
+PF1old		= $161
+PF2old		= $162
 
-PFLeft0		= $1C3
-PFLeft1		= $1C4
-PFLeft2		= $1C5
-PFRight0	= $1C6
-PFRight1	= $1C7
-PFRight2	= $1C8
-LineCycles	= $1C9 ; how many cycles since the scanline started
-LastDrawnPixel	= $1CA
-FreeSprite	= $1CB
+PFLeft0		= $163
+PFLeft1		= $164
+PFLeft2		= $165
+PFRight0	= $166
+PFRight1	= $167
+PFRight2	= $168
+LineCycles	= $169 ; how many cycles since the scanline started
+LastDrawnPixel	= $16A
+FreeSprite	= $16B
 
-TimerCycles	= $1CC ; 10 bit value, stored a bit weird
-TimerCounter	= $1CE
-TimerInterval	= $1CF
+TimerCycles	= $16C ; 10 bit value, stored a bit weird
+TimerCounter	= $16E
+TimerInterval	= $16F
 
-;;;---
+CacheTableHalf0	= $170
+
+Stack		= $1F0
+
+Sprites		= $300
+
 ATRPC		= $2F1
 IntS		= $2F3
 NESPC		= $2F5
@@ -111,18 +112,18 @@ CacheFree	= $2F9
 CacheOldest	= $2FB
 
 ; cache table
-CacheTable	= $300
+CacheTableHalf1	= $300
 CodeBlocks	= $400
 
-CACHE_BLOCKS		= 32
+CACHE_BLOCKS		= $40
 CACHE_BLOCKS_END	= $7FF
 
-JATARI	= CacheTable + CACHE_BLOCKS*0 ; lll1 hhhh -> 1111 hhhh llli iiii (i is row index)
-JINT	= CacheTable + CACHE_BLOCKS*1 ; interrupt type
-JCYCLES	= CacheTable + CACHE_BLOCKS*2 ; code block cycle count
-JRETLO	= CacheTable + CACHE_BLOCKS*3 ; where to return to after the interrupt
-JRETHI	= CacheTable + CACHE_BLOCKS*4
-JINTPAR	= CacheTable + CACHE_BLOCKS*5 ; interrupt parameter if needed
+JATARI	= CacheTableHalf0 + CACHE_BLOCKS*0 ; lll1 hhhh -> 1111 hhhh llli iiii (i is row index)
+JINT	= CacheTableHalf0 + CACHE_BLOCKS*1 ; interrupt type
+JCYCLES	= CacheTableHalf1 + CACHE_BLOCKS*0 ; code block cycle count
+JRETLO	= CacheTableHalf1 + CACHE_BLOCKS*1 ; where to return to after the interrupt
+JRETHI	= CacheTableHalf1 + CACHE_BLOCKS*2
+JINTPAR	= CacheTableHalf1 + CACHE_BLOCKS*3 ; interrupt parameter if needed
 
 INS_PHP		= $08
 INS_JSR		= $20
@@ -178,7 +179,7 @@ Start:
         sta TimerCounter
         lda #$d
         sta $104
-
+	
 	; temporary static sprite palette
 	lda #$3f
         sta PPU_ADDR

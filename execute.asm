@@ -4,9 +4,9 @@
           asl
           asl
           asl
-          asl
           sta NESPC
           txa
+          lsr
           lsr
           lsr
           lsr
@@ -14,9 +14,11 @@
           sta NESPC+1
         ENDM
 
+	; TODO: make the index thing 6 bit everywhere
+
 FindBlock: subroutine
         lda ATRPC
-        and #$1f
+        and #$3f
         tax
         stx BlockIndex
         

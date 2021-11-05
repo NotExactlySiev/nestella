@@ -35,19 +35,17 @@ NMIHandler: subroutine
 
 	; draw the buffers if there's anything in them
         DRAW_BUFFER 0
-	DRAW_BUFFER 1
-        DRAW_BUFFER 2
-        DRAW_BUFFER 3
-        DRAW_BUFFER 4
-        DRAW_BUFFER 5
+	;DRAW_BUFFER 1
+        ;DRAW_BUFFER 2
+        ;DRAW_BUFFER 3
+        ;DRAW_BUFFER 4
+        ;DRAW_BUFFER 5
         
         ldx #$20
         stx PPU_ADDR
         inx
         stx PPU_ADDR
         lda $201
-        sta PPU_DATA
-        lda #0
         sta PPU_DATA
         lda $203
         sta PPU_DATA
