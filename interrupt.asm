@@ -1,5 +1,4 @@
 InterruptHandler: subroutine
-	nop
 	php
         sta IntA
         stx IntX
@@ -15,10 +14,7 @@ InterruptHandler: subroutine
         tax
         clc
         adc LineCycles
-        sta LineCycles
-
-	
-        
+        sta LineCycles        
         
 
 	bit TimerInterval

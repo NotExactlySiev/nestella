@@ -17,6 +17,20 @@
 	; TODO: make the index thing 6 bit everywhere
 
 FindBlock: subroutine
+	IF PERFORMANCE_MONITOR=1
+	clc
+        lda #1
+        adc $158
+        sta $158
+        lda #0
+        adc $159
+        sta $159
+        lda #0
+        adc $15A
+        sta $15A
+	ENDIF
+
+	; decode JATARI
         lda ATRPC
         and #$3f
         tax
@@ -24,18 +38,30 @@ FindBlock: subroutine
         
         SET_NESPC
         
+        ; Check if this is the correct block
         lda JATARI,x
         tay
-        and #$e0
+        and #$c0
         ora Identity,x
         cmp ATRPC
         bne Overwrite
         tya
-        ora #$e0
+        ora #$c0
         cmp ATRPC+1
         bne Overwrite
 
-	nop
+	IF PERFORMANCE_MONITOR=1
+        clc
+        lda #1
+        adc $148
+        sta $148
+        lda #0
+        adc $149
+        sta $149
+        lda #0
+        adc $14A
+        sta $14A
+	ENDIF
         
 ResumeProgram       
 	lda IntP
@@ -48,14 +74,44 @@ ResumeProgram
 
 Overwrite
 	; if the block wasn't cached prepare for translation
+        
+        ; is this memory block part of a previous code block? if so,
+        ; it's invalidation time
+        lda JATARI,x
+        and #$30
+        cmp #$20
+        beq .invalidate
+        cmp #$10
+        beq .invalidate
+        bne .create
+.invalidate
+	; we go back until we reach either a tail block or a head block
+        ; (it shouldn't be possible to get an empty block i don't think)
+.prev
+	dex
+        bpl .nwrap
+        ldx #$3F
+.nwrap
+        lda JATARI,x
+        and #$30
+        cmp #$10
+        beq .prev
+	
+	; invalidate the block if it's valid
+        ; if not it's already been invalidated
+	lda #$20
+        sta JATARI,x
+ 
+.create
+	ldx BlockIndex
 	lda ATRPC
         sta TROMPtr
-        and #$e0
+        and #$c0
         tay
         
         lda ATRPC+1
         sta TROMPtr+1
-        and #$1f
+        and #$3f
         ora Identity,y
         sta JATARI,x
 	        

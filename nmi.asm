@@ -50,9 +50,13 @@ NMIHandler: subroutine
         lda $203
         sta PPU_DATA
         
+        lda $202
+        and #$3
+        bne .noam
         lda #$2
         sta OAM_DMA
-        
+.noam
+
         lda #0
         sta PPU_ADDR
         sta PPU_ADDR

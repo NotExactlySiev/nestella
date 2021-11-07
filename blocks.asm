@@ -109,10 +109,50 @@ TranslationDone
 	ldx BlockIndex
 
 InvalidateCache
-	; TODO: if the generated code block is bigger than 34 bytes, the next block(s) are invalid
-        ; (invalid blocks have bit 4 in their JATARI set to 0)
+	; bits 4 and 5 in JATARI have special meaning
+        ;
+        ; xx00xxxx this block is empty
+        ; xx11xxxx this block has valid code (only this type can be executed)
+        ; xx01xxxx this black was fully overwritten 
+        ; xx10xxxx this block was overwritten and the code ended here
+        ;
+        ; after writing to a block, we check to see if we've overwritten any blocks after it
+        ; and mark their JATARI bits approprietly. also, when creating a new block, first we should
+        ; check to see if that block was already part of a previous code block (bits are 01 or 10) and
+        ; if so, we go back and invalidate that block too. we only have to go back 1- if the block we're
+        ; about to create was previously overwritten, and 2- until we reach a block that's either valid (11)
+        ; in which case it'll be invalidated, or is overwritten by the tail end of a code block (10)
+        ; in which case the code containing the current block has already been invalidated.
+        
+        ; divide the size of this block by 16 to see if we're overflowing
+        sec
+        lda TCachePtr
+        sbc NESPC
+        lsr
+        lsr
+        lsr
+        lsr
+        tay
+        beq .cachedone
+
+.next
+        inx
+        dey
+        beq .tail
+        lda #%00010000
+        sta JATARI,x
+        bne .next
+        
+
+.tail
+	lda #%00100000
+        sta JATARI,x
+        
+.cachedone
 
 UpdateTable
+	ldx BlockIndex
+
 	; complete the table entry
         lda NESAddrHi
         sta JRETHI,x

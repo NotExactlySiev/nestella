@@ -107,28 +107,9 @@ ILineSync: subroutine
         bne .n1
         ;FILL_BUFFER 1
         jmp .buffdone
-        
-.n1	;bit DrawBuffer2
-        bne .n2
-        ;FILL_BUFFER 2
-        jmp .buffdone
-.n2
-	;bit DrawBuffer3
-        bne .n3
-	;FILL_BUFFER 3
-        jmp .buffdone
-.n3	
-	;bit DrawBuffer4
-        bne .n4
-	;FILL_BUFFER 4
-        jmp .buffdone
-.n4	
-	;bit DrawBuffer5
-        bne .n5
-	;FILL_BUFFER 5
-        beq .buffdone
-.n5	
-	inc $210
+
+.n1
+
 .buffdone
 
 

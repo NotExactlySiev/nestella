@@ -5,7 +5,6 @@
 ;;;;; VARIABLES
 
 
-
 ; 40 - 45 atari registers
 
 var0		= $46 ; used by interrupt handler!!!!!
@@ -75,7 +74,7 @@ ColorSection	= $113 ; which quarter of the screen we're in
 PaletteCounter	= $114 ; counts tiles and sets the palette after 6 tiles
 Playfield	= $115 ; - $128
 
-; six 24 byte buffers should be enough jesus christ
+; two 24 byte buffers should be enough jesus christ
 DrawBuffer0	= $130
 DrawBuffer1	= $148
 
@@ -133,7 +132,14 @@ INS_JMP_ABS	= $4c
 INS_STA_ZPG	= $85
 INS_LDA_IMM	= $a9
 
-ROM_RESET	= $f000
+ROM_RESET	= $b000
+
+;;;;; Assembler Parameters
+
+PERFORMANCE_MONITOR	= 0
+
+
+
 
 	seg.u ZEROPAGE
 	org $0
@@ -287,7 +293,7 @@ Attributes:
 
 	org $effa
         ; Atari Vectors
-        .hex ff ff 00 f0 a2 ff
+        .hex 60 CD 00 B0 00 B0
 
 	org $f000
         incbin "rom.a26"

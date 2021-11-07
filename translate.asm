@@ -71,8 +71,13 @@ MirrorAddr: subroutine
 	rts
 
 ; TODO: now that we have a full 8 bit number for the interrupt type, this could be redone to 
-; be more straight forward and use the entire byte instead of only the first 5 bits
-	
+;       be more straight forward and use the entire byte instead of only the first 5 bits
+
+
+; TODO: use constants. Jesus christ this is a mess. Also maybe use a LUT or something for
+;       which interrupt needs to be generated for which memory addr etc. also why are we
+;	setting y to 0 every time? it seems to be already 0. this whole thing should be rewritten jfc
+
 TMemoryAccess: subroutine
 	lda InstType
         and #$1
@@ -109,10 +114,11 @@ TMemoryAccess: subroutine
 
 
         lda NESAddrLo
+	; it can only be a sync
+        ; use NESAddrHi and Lo for the interrupt return address since we no longer need those variables
         cmp #$2
         bne .nwsync
-        ; it's a sync
-        ; use NESAddrHi and Lo for the interrupt return address since we no longer need those variables
+       
         lda #$2
 	bne AccessInterrupt
 
@@ -134,7 +140,7 @@ TMemoryAccess: subroutine
 
 .npf
 	cmp #$15
-        bcs .nint
+        bcs .nsp
         ; sprite reset
         and #$f
         ldx BlockIndex
@@ -142,7 +148,14 @@ TMemoryAccess: subroutine
         ldy #0
         lda #$e
         bne AccessInterrupt
-
+	
+.nsp
+	cmp #$2c
+        bne .nint
+        ; clear collision
+        ldy #0
+	lda #$a
+        bne AccessInterrupt
 
 .io
 	lda NESAddrLo
