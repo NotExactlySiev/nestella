@@ -132,13 +132,10 @@ INS_JMP_ABS	= $4c
 INS_STA_ZPG	= $85
 INS_LDA_IMM	= $a9
 
-;;ROM_RESET	= $b000
 
 ;;;;; Assembler Parameters
 
 PERFORMANCE_MONITOR	= 0
-
-
 
 
 	seg.u ZEROPAGE
@@ -293,7 +290,10 @@ Attributes:
 
 	org $effa
         ; Atari Vectors
-        .hex 60 CD 00 B0 00 B0
+        ;.hex 60 CD 00 B0 00 B0
+        .word $CD60
+        .word #ROM_RESET
+        .word $B000
 
 	org $f000
         incbin "rom.a26"
