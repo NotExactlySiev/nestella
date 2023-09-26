@@ -9,6 +9,7 @@ CreateBlock: subroutine
         ; but there has to be a better way to do all of this
 
 	lda #0
+        sta var3        ; block size so far
         sta BlockCycles
         sta RollOver
 .loop
@@ -31,6 +32,23 @@ CreateBlock: subroutine
         bit InstType
         bpl .nint
         ; Always Interrupt
+
+        ;; EXPERIMENT!!! if it's a branch going back into the same block, just copy
+        lda InstType
+        lsr
+        bcs .nfancy
+        ;; check if goes back
+        ldy #1
+        lda (TROMPtr),y
+        bpl .nfancy
+        iny     ; set to 2 it's gonna be instruction size
+        clc
+        adc var3
+        ; it works! just copy it!
+        bpl SimpleCopy
+        
+.nfancy
+        ;; EXPERIMENT OVER!!!
         jmp TAlwaysInterrupt
 .nint
         beq .nmem
@@ -40,6 +58,7 @@ CreateBlock: subroutine
 .nmem
 	; No changes
 	ldy InstType
+SimpleCopy
         sty InstSize
         sty NESInstSize
 	dey
@@ -55,7 +74,7 @@ InstructionDone
         sty AddrHi
 	ldy NESInstSize
         dey
-AppendInstruction              
+AppendInstruction
         lda NESOpCode,y
         sta (TCachePtr),y
         dey
@@ -78,6 +97,11 @@ AppendInstruction
         lda TCachePtr+1
         adc #0
         sta TCachePtr+1
+
+        txa
+        clc
+        adc var3
+        sta var3
         
         ; if we're at the end of the cache memory, we have to roll over and overwrite old cache
         cmp #$7

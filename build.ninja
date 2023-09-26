@@ -2,6 +2,6 @@ atarireset  = 0xb000
 dasmflags   = -f3 -DROM_RESET=${atarireset}
 
 rule assemble
-    command = dasm $in $dasmflags -o${out}
+    command = dasm $in $dasmflags -o${out} -ssyms.txt
 
 build nestella.nes: assemble nestella.asm
