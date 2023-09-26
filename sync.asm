@@ -43,8 +43,15 @@ ILineSync: subroutine
         clc
         adc #39
         sta $200,x
+
+        lda REFP0
+        and #$8
+        asl
+        asl
+        asl
+        std $202,x
+
         lda Sprite0H
-        
         sta $203,x
         
         dex
