@@ -291,10 +291,11 @@ Attributes:
 	org $effa
         ; Atari Vectors
         ;.hex 60 CD 00 B0 00 B0
-        .word $CD60
-        .word #ROM_RESET
-        .word $B000
+        ;.word $CD60
+        ;.word #ROM_RESET
+        ;.word $B000
 
 	org $f000
-        incbin "rom.a26"
+        incbin "rom.bin"
+        incbin "rom.bin"
 	incbin "tiles.chr"
