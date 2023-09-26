@@ -297,5 +297,5 @@ Attributes:
 
 	org $f000
         incbin "rom.bin"
-        incbin "rom.bin"
+        ;incbin "rom.bin"
 	incbin "tiles.chr"
